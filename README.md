@@ -65,20 +65,24 @@ e2e/                  端到端测试（Playwright）
 
 ### Windows 客户端
 
-推送 `v` 开头的标签即可自动构建并发布 GitHub Release（工作流见 `.github/workflows/release.yml`）：
+先把 `package.json` 里的 `version` 改成要发布的版本并提交，然后任选一种方式（工作流见 `.github/workflows/release.yml`）：
 
-```bash
-# 先把 package.json 里的 version 改成要发布的版本并提交
-git tag v0.1.0
-git push origin v0.1.0
-```
+- **网页手动发布**：GitHub 的 Actions 页面选择「Release (Windows)」→「Run workflow」，「发布版本」填 `v0.1.0`。工作流在所选分支的最新提交上创建该标签，构建后发布 GitHub Release
+- **推送标签**：
+
+  ```bash
+  git tag v0.1.0
+  git push origin v0.1.0
+  ```
+
+两种方式都会检查版本号与 `package.json` 一致；手动发布时标签已存在会直接失败，不会覆盖。
 
 产物有两个：
 
 - `8583-json_<版本>_x64-setup.exe`：安装包，中文界面，安装到当前用户目录，不需要管理员权限
 - `8583-json_<版本>_x64_portable.zip`：绿色版，解压后直接运行 `8583-json.exe`
 
-发布前想先试构建：在 GitHub 的 Actions 页面选择「Release (Windows)」→「Run workflow」，产物会出现在该次运行的 Artifacts 里，不会发布 Release。
+发布前想先试构建：手动运行时「发布版本」留空，产物会出现在该次运行的 Artifacts 里，不会发布 Release。
 
 程序目前没有代码签名，首次运行时 Windows 可能提示「已保护你的电脑」，点「更多信息」→「仍要运行」即可。运行需要 WebView2 运行时，Windows 10 / 11 一般已自带。
 
