@@ -4,6 +4,7 @@ import { useMessageStore } from '../../stores/message'
 import { useUiStore } from '../../stores/ui'
 import { compactHex } from '../../utils/hex'
 import BitmapGrid from './BitmapGrid.vue'
+import RegionToggle from './RegionToggle.vue'
 import SegmentDetail from './SegmentDetail.vue'
 import SegmentTable from './SegmentTable.vue'
 import StructureStrip from './StructureStrip.vue'
@@ -13,6 +14,9 @@ const CodeEditor = defineAsyncComponent(() => import('./CodeEditor.vue'))
 
 const message = useMessageStore()
 const ui = useUiStore()
+
+// 结构与解析区折叠时，报文区拉伸占满剩余高度，编辑器能显示更多行
+const fillEditors = computed(() => ui.editorsOpen && !ui.analysisOpen)
 
 const hexBytes = computed(() => Math.floor(compactHex(message.hex).length / 2))
 
@@ -29,47 +33,61 @@ function selectByte(index: number) {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
-    <div class="grid gap-4" :class="ui.layout === 'row' ? 'md:grid-cols-2' : 'grid-cols-1'">
-      <section class="flex flex-col overflow-hidden rounded-lg border border-surface-200 bg-white">
-        <div class="flex items-center gap-2 border-b border-surface-200 px-3.5 py-2.5">
-          <h2 class="m-0 text-sm font-semibold">8583 报文</h2>
-          <span class="font-mono text-xs text-surface-500">HEX · {{ hexBytes }} 字节</span>
-        </div>
-        <CodeEditor
-          id="hex-in"
-          v-model="message.hex"
-          language="hex"
-          label="8583 报文（HEX）"
-          placeholder="粘贴十六进制报文，空格和换行会被忽略；点击任一字节可选中它所在的段"
-          :highlight="highlight"
-          @cursor-byte="selectByte"
-        />
-      </section>
-      <section class="flex flex-col overflow-hidden rounded-lg border border-surface-200 bg-white">
-        <div class="flex items-center gap-2 border-b border-surface-200 px-3.5 py-2.5">
-          <h2 class="m-0 text-sm font-semibold">JSON</h2>
-          <span class="font-mono text-xs text-surface-500">{ mti, tpdu, header, fields }</span>
-        </div>
-        <CodeEditor id="json-in" v-model="message.json" language="json" label="JSON 报文" placeholder='{ "mti": "0200", "fields": { "3": "000000" } }' />
-      </section>
+  <div class="flex min-h-full flex-col gap-4">
+    <div class="flex flex-col gap-2" :class="{ 'flex-1': fillEditors }">
+      <RegionToggle v-model:open="ui.editorsOpen" title="报文区" controls="region-editors" />
+      <div
+        v-show="ui.editorsOpen"
+        id="region-editors"
+        class="grid gap-4"
+        :class="[ui.layout === 'row' ? 'md:grid-cols-2' : 'grid-cols-1', { 'flex-1': fillEditors }]"
+      >
+        <section class="flex flex-col overflow-hidden rounded-lg border border-surface-200 bg-white">
+          <div class="flex items-center gap-2 border-b border-surface-200 px-3.5 py-2.5">
+            <h2 class="m-0 text-sm font-semibold">8583 报文</h2>
+            <span class="font-mono text-xs text-surface-500">HEX · {{ hexBytes }} 字节</span>
+          </div>
+          <CodeEditor
+            id="hex-in"
+            v-model="message.hex"
+            language="hex"
+            label="8583 报文（HEX）"
+            placeholder="粘贴十六进制报文，空格和换行会被忽略；点击任一字节可选中它所在的段"
+            :highlight="highlight"
+            :fill="fillEditors"
+            @cursor-byte="selectByte"
+          />
+        </section>
+        <section class="flex flex-col overflow-hidden rounded-lg border border-surface-200 bg-white">
+          <div class="flex items-center gap-2 border-b border-surface-200 px-3.5 py-2.5">
+            <h2 class="m-0 text-sm font-semibold">JSON</h2>
+            <span class="font-mono text-xs text-surface-500">{ length, tpdu, header, mti, bitmap, fields }</span>
+          </div>
+          <CodeEditor id="json-in" v-model="message.json" language="json" label="JSON 报文" placeholder='{ "mti": "0200", "fields": { "3": "000000" } }' :fill="fillEditors" />
+        </section>
+      </div>
     </div>
 
-    <template v-if="message.decoded">
-      <StructureStrip />
-      <div class="flex flex-wrap items-start gap-4">
-        <div class="min-w-0 flex-[999_1_560px]">
-          <SegmentTable />
-        </div>
-        <!-- 右侧吸顶：滚动表格时位图和详情保持可见 -->
-        <aside class="flex min-w-0 flex-[1_1_340px] flex-col gap-4 lg:sticky lg:top-0">
-          <BitmapGrid />
-          <SegmentDetail />
-        </aside>
+    <div class="flex flex-col gap-2">
+      <RegionToggle v-model:open="ui.analysisOpen" title="结构与解析区" controls="region-analysis" />
+      <div v-show="ui.analysisOpen" id="region-analysis" class="flex flex-col gap-4">
+        <template v-if="message.decoded">
+          <StructureStrip />
+          <div class="flex flex-wrap items-start gap-4">
+            <div class="min-w-0 flex-[999_1_560px]">
+              <SegmentTable />
+            </div>
+            <!-- 右侧吸顶：滚动表格时位图和详情保持可见 -->
+            <aside class="flex min-w-0 flex-[1_1_340px] flex-col gap-4 lg:sticky lg:top-0">
+              <BitmapGrid />
+              <SegmentDetail />
+            </aside>
+          </div>
+        </template>
+        <section v-else class="rounded-lg border border-dashed border-surface-300 bg-white px-4 py-12 text-center text-sm text-surface-500">
+          粘贴 8583 报文后点「解析」，或编辑 JSON 后点「组包」。也可以点工具栏的「载入示例」。
+        </section>
       </div>
-    </template>
-    <section v-else class="rounded-lg border border-dashed border-surface-300 bg-white px-4 py-12 text-center text-sm text-surface-500">
-      粘贴 8583 报文后点「解析」，或编辑 JSON 后点「组包」。也可以点工具栏的「载入示例」。
-    </section>
+    </div>
   </div>
 </template>

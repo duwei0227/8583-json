@@ -14,6 +14,8 @@ const props = defineProps<{
   placeholder?: string
   /** 仅 HEX：需要高亮的字节范围（选中段） */
   highlight?: { offset: number; len: number } | null
+  /** 拉伸占满父级剩余高度（父级需为纵向 flex），否则固定 16rem */
+  fill?: boolean
 }>()
 const emit = defineEmits<{
   'update:modelValue': [value: string]
@@ -49,7 +51,7 @@ const hexLinter = linter((v) => {
 })
 
 const theme = EditorView.theme({
-  '&': { height: '16rem', fontSize: '13px', backgroundColor: 'var(--p-surface-50)' },
+  '&': { position: 'absolute', inset: '0', fontSize: '13px', backgroundColor: 'var(--p-surface-50)' },
   '&.cm-focused': { outline: 'none' },
   '.cm-scroller': { fontFamily: 'var(--font-mono)', lineHeight: '1.7' },
   '.cm-gutters': { backgroundColor: 'var(--p-surface-50)', borderRight: '1px solid var(--p-surface-200)' },
@@ -135,5 +137,6 @@ watch(
 </script>
 
 <template>
-  <div ref="host" class="min-w-0" />
+  <!-- 编辑器绝对定位铺满宿主，高度由外层决定：默认 16rem，另一区折叠时随可用空间拉伸 -->
+  <div ref="host" class="relative min-w-0" :class="fill ? 'min-h-64 flex-1' : 'h-64'" />
 </template>

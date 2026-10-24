@@ -33,11 +33,13 @@ export interface CommandActions {
   saveJson(): Promise<void>
   parse(): void
   pack(): void
-  formatHex(): void
+  format(): void
   clear(): void
   copyHex(): Promise<void>
   copyJson(): Promise<void>
   toggleLayout(): void
+  toggleEditors(): void
+  toggleAnalysis(): void
   toggleHistory(): void
   editSpec(): void
   newSpec(): void
@@ -58,12 +60,14 @@ export function createCommands(a: CommandActions): Command[] {
 
     { id: 'message.parse', label: '解析 8583 → JSON', icon: 'pi pi-play', group: 'edit', shortcut: 'CmdOrCtrl+Enter', toolbar: true, run: a.parse },
     { id: 'message.pack', label: '组包 JSON → 8583', icon: 'pi pi-replay', group: 'edit', shortcut: 'CmdOrCtrl+Shift+Enter', toolbar: true, run: a.pack },
-    { id: 'message.format', label: '格式化 HEX', icon: 'pi pi-align-left', group: 'edit', shortcut: 'CmdOrCtrl+Shift+F', toolbar: true, run: a.formatHex },
+    { id: 'message.format', label: '格式化 HEX / JSON', icon: 'pi pi-align-left', group: 'edit', shortcut: 'CmdOrCtrl+Shift+F', toolbar: true, run: a.format },
     { id: 'message.clear', label: '清空', icon: 'pi pi-trash', group: 'edit', toolbar: true, run: a.clear },
     { id: 'message.copyHex', label: '复制 HEX', icon: 'pi pi-copy', group: 'edit', run: a.copyHex },
     { id: 'message.copyJson', label: '复制 JSON', icon: 'pi pi-copy', group: 'edit', run: a.copyJson },
 
     { id: 'view.layout', label: '切换编辑器排列', icon: 'pi pi-table', group: 'view', run: a.toggleLayout },
+    { id: 'view.editors', label: '折叠 / 展开报文区', icon: 'pi pi-window-minimize', group: 'view', run: a.toggleEditors },
+    { id: 'view.analysis', label: '折叠 / 展开结构与解析区', icon: 'pi pi-window-minimize', group: 'view', run: a.toggleAnalysis },
     { id: 'view.history', label: '历史记录', icon: 'pi pi-history', group: 'view', shortcut: 'CmdOrCtrl+H', run: a.toggleHistory },
 
     { id: 'spec.edit', label: '编辑当前规范…', icon: 'pi pi-sliders-h', group: 'spec', shortcut: 'CmdOrCtrl+,', run: a.editSpec },

@@ -14,6 +14,9 @@ export const useUiStore = defineStore('ui', () => {
   const modal = ref<Modal>(null)
   /** 编辑器左右或上下排列 */
   const layout = ref<'row' | 'col'>('row')
+  /** 报文区（HEX、JSON 编辑器）和结构与解析区各自展开或折叠，折叠一个可让另一个占满屏幕 */
+  const editorsOpen = ref(true)
+  const analysisOpen = ref(true)
 
-  return { platformKind, isMac, historyOpen, specOpen, importOpen, dragging, modal, layout }
+  return { platformKind, isMac, historyOpen, specOpen, importOpen, dragging, modal, layout, editorsOpen, analysisOpen }
 })
