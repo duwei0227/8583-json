@@ -49,11 +49,18 @@ function openFile(extensions: string[]): Promise<OpenedFile | null> {
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = extensions.map((ext) => `.${ext}`).join(',')
+    // 挂到文档上再打开：游离的 input 可能被回收，浏览器偶尔不弹出选择框或收不到 change
+    input.hidden = true
+    document.body.append(input)
+    const done = (file: OpenedFile | null) => {
+      input.remove()
+      resolve(file)
+    }
     input.onchange = async () => {
       const file = input.files?.[0]
-      resolve(file ? { name: file.name, bytes: new Uint8Array(await file.arrayBuffer()) } : null)
+      done(file ? { name: file.name, bytes: new Uint8Array(await file.arrayBuffer()) } : null)
     }
-    input.oncancel = () => resolve(null)
+    input.oncancel = () => done(null)
     input.click()
   })
 }

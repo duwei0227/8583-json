@@ -29,6 +29,7 @@ src/                  前端（Web 与桌面共用）
   stores/             Pinia 状态
   features/           界面：shell · convert · spec · history
   samples/            示例报文，同时是黄金测试样例
+e2e/                  端到端测试（Playwright）
 ```
 
 ## 环境要求
@@ -49,6 +50,7 @@ src/                  前端（Web 与桌面共用）
 | `pnpm build:web` | 构建 Web 版，产物在 `dist/` |
 | `pnpm build:desktop` | 打包桌面安装包 |
 | `pnpm test` | 前端单元测试（Vitest） |
+| `pnpm test:e2e` | 端到端测试（Playwright，自动启动开发服务器；需先执行一次 `pnpm wasm`，首次还需 `pnpm exec playwright install chromium`） |
 | `pnpm typecheck` | 前端类型检查 |
 | `cargo test` | Rust 测试；同时把 Rust 类型导出到 `src/codec/types/` |
 | `cargo clippy --workspace --all-targets -- -D warnings` | Rust lint（含桌面壳） |

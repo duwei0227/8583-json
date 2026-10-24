@@ -5,3 +5,6 @@ target/
 src/codec/pkg/
 *.log
 .DS_Store
+# Playwright 输出
+test-results/
+playwright-report/

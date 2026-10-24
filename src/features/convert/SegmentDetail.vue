@@ -54,6 +54,7 @@ const accent = computed(() => KIND_STYLES[segmentKind(message.selectedId ?? '')]
               :key="option.code"
               class="rounded border px-1.5 text-[11px] whitespace-nowrap"
               :class="option.current ? 'border-violet-800 bg-violet-800 text-white' : 'border-surface-200 text-surface-500'"
+              :aria-current="option.current || undefined"
             >
               <span class="font-mono font-semibold">{{ option.code }}</span> {{ option.label }}
             </span>

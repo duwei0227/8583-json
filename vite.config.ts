@@ -16,5 +16,7 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
+    // e2e/ 下是 Playwright 用例，由 `pnpm test:e2e` 运行
+    include: ['src/**/*.test.ts'],
   },
 })

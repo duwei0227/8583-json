@@ -102,7 +102,7 @@
 │  │  ├─ spec/                   # SpecDialog · FrameSettings · FieldTable · FieldEditor
 │  │  └─ history/                # HistoryDrawer
 │  └─ styles/main.css            # @import tailwindcss + tailwindcss-primeui
-├─ tests/e2e/                    # Playwright（跑 Web 构建）
+├─ e2e/                         # Playwright 端到端用例（Web 版）
 ├─ docs/
 └─ .github/workflows/ci.yml
 ```
@@ -349,6 +349,7 @@ SpecDialog 编辑 → specStore.draft 改变（dirty = true）
 | `pnpm build:web` | 生成 `dist/`，用于 Web 部署 |
 | `pnpm build:desktop` | `tauri build`，生成各平台安装包 |
 | `pnpm gen:types` | 从 Rust 生成 `src/codec/types.ts` |
+| `pnpm test:e2e` | Playwright 端到端测试，自动启动开发服务器（需先 `pnpm wasm`） |
 
 ### 9.2 测试分层
 
@@ -358,7 +359,7 @@ SpecDialog 编辑 → specStore.draft 改变（dirty = true）
 | 随机往返测试 | 固定种子的伪随机生成 | 按规范随机生成 500 条合法报文：encode → decode 必须还原；随机字节输入绝不 panic |
 | 黄金样例 | `src/samples/*.json` + 对应 HEX | Rust 和前端**共用同一批样例**，保证两端结果一致；原型里的 11 个示例直接作为第一批 |
 | 前端单元 | Vitest | stores、explain 文案、平台适配层（mock） |
-| 端到端 | Playwright（Web 构建） | 载入示例 → 解析 → 选中联动 → 修改规范 → 组包 → 快捷键 → 打开 / 拖入文件 |
+| 端到端 | Playwright（`e2e/`，Web 版） | 载入示例 → 解析 → 选中联动 → 页面滚动定位 → 修改规范 → 组包 → 历史 → 快捷键 → 打开 / 拖入文件；每个用例结束时页面不得有报错 |
 | 桌面端到端 | tauri-driver + WebKitWebDriver（Linux） | 真实 Tauri 应用里解析、选中联动、历史经 tauri-plugin-store 重启后仍在 |
 
 ### 9.3 CI（GitHub Actions）

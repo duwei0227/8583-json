@@ -46,6 +46,7 @@ const note = computed(() => (message.decoded ? bitmapNote(message.decoded, messa
         :class="[cell.cls, { 'cursor-pointer': cell.clickable }]"
         :disabled="!cell.clickable"
         :aria-label="`第 ${cell.n} 位 ${cell.on ? '已置位' : '未置位'}`"
+        :aria-current="(cell.on && cell.id === message.selectedId) || undefined"
         @click="message.select(cell.id)"
         @mouseenter="cell.clickable && message.hover(cell.id)"
         @mouseleave="message.hover(null)"

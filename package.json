@@ -10,8 +10,9 @@
     "gen:types": "cargo test -p iso8583-core",
     "dev": "pnpm wasm && vite",
     "dev:web": "vite",
-    "typecheck": "vue-tsc --noEmit",
+    "typecheck": "vue-tsc --noEmit && tsc -p e2e",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "build:web": "pnpm wasm && vue-tsc --noEmit && vite build",
     "build:desktop": "tauri build",
     "tauri": "tauri"
@@ -34,6 +35,7 @@
     "vue": "^3.5.44"
   },
   "devDependencies": {
+    "@playwright/test": "1.64.1",
     "@tailwindcss/vite": "^4.3.3",
     "@tauri-apps/cli": "^2.12.4",
     "@types/node": "^22.20.5",

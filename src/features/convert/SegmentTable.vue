@@ -55,6 +55,7 @@ const truncate = (text: string, max: number) => (text.length > max ? text.slice(
             v-for="row in rows"
             :key="row.id"
             :data-segment-id="row.id"
+            :aria-current="row.id === message.selectedId || undefined"
             class="cursor-pointer border-t border-surface-100"
             :class="row.id === message.selectedId ? 'bg-blue-100' : row.id === message.hoverId ? 'bg-surface-50' : 'hover:bg-surface-50'"
             @click="message.select(row.id)"
