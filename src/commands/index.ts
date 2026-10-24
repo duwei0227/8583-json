@@ -40,6 +40,9 @@ export interface CommandActions {
   toggleLayout(): void
   toggleHistory(): void
   editSpec(): void
+  newSpec(): void
+  importSpec(): void
+  exportSpec(): Promise<void>
   showFieldReference(): void
   showShortcuts(): void
   showAbout(): void
@@ -50,6 +53,8 @@ export function createCommands(a: CommandActions): Command[] {
     { id: 'file.open', label: '打开报文文件…', icon: 'pi pi-folder-open', group: 'file', shortcut: 'CmdOrCtrl+O', toolbar: true, run: a.openFile },
     { id: 'file.saveHex', label: '保存 HEX…', icon: 'pi pi-save', group: 'file', shortcut: 'CmdOrCtrl+S', run: a.saveHex },
     { id: 'file.saveJson', label: '保存 JSON…', icon: 'pi pi-file-export', group: 'file', shortcut: 'CmdOrCtrl+Shift+S', run: a.saveJson },
+    { id: 'spec.import', label: '导入规范…', icon: 'pi pi-download', group: 'file', run: a.importSpec },
+    { id: 'spec.export', label: '导出当前规范…', icon: 'pi pi-upload', group: 'file', run: a.exportSpec },
 
     { id: 'message.parse', label: '解析 8583 → JSON', icon: 'pi pi-play', group: 'edit', shortcut: 'CmdOrCtrl+Enter', toolbar: true, run: a.parse },
     { id: 'message.pack', label: '组包 JSON → 8583', icon: 'pi pi-replay', group: 'edit', shortcut: 'CmdOrCtrl+Shift+Enter', toolbar: true, run: a.pack },
@@ -62,6 +67,7 @@ export function createCommands(a: CommandActions): Command[] {
     { id: 'view.history', label: '历史记录', icon: 'pi pi-history', group: 'view', shortcut: 'CmdOrCtrl+H', run: a.toggleHistory },
 
     { id: 'spec.edit', label: '编辑当前规范…', icon: 'pi pi-sliders-h', group: 'spec', shortcut: 'CmdOrCtrl+,', run: a.editSpec },
+    { id: 'spec.new', label: '以当前规范为模板新建…', icon: 'pi pi-plus', group: 'spec', run: a.newSpec },
 
     { id: 'help.fields', label: '8583 字段速查', icon: 'pi pi-book', group: 'help', run: a.showFieldReference },
     { id: 'help.shortcuts', label: '快捷键列表', icon: 'pi pi-key', group: 'help', shortcut: 'CmdOrCtrl+/', run: a.showShortcuts },

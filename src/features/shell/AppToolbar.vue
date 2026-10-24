@@ -20,6 +20,13 @@ const history = useHistoryStore()
 const ui = useUiStore()
 
 const toolbarCommands = computed(() => props.commands.filter((c) => c.toolbar))
+const specOptions = computed(() => spec.entries.map((e) => ({ id: e.id, name: e.spec.name })))
+
+async function switchSpec(id: string) {
+  await spec.switchTo(id)
+  if (message.hex.trim()) message.parse()
+  else message.setStatus('info', `已切换到规范「${spec.current?.name}」`)
+}
 const sample = ref<Sample | null>(null)
 
 function tooltip(c: Command) {
@@ -67,7 +74,16 @@ const moreItems = computed<MenuItem[]>(() =>
           aria-label="示例报文"
           @change="sample && message.loadSample(sample)"
         />
-        <span class="ml-2 text-xs text-surface-500">规范：{{ spec.current?.name ?? '加载中' }}</span>
+        <Select
+          :model-value="spec.currentId"
+          :options="specOptions"
+          option-label="name"
+          option-value="id"
+          size="small"
+          class="ml-1 w-40"
+          aria-label="当前规范"
+          @update:model-value="switchSpec"
+        />
       </div>
     </template>
     <template #end>

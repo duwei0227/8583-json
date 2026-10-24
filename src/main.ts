@@ -1,6 +1,7 @@
 import { createPinia } from 'pinia'
 import 'primeicons/primeicons.css'
 import PrimeVue from 'primevue/config'
+import ConfirmationService from 'primevue/confirmationservice'
 import { createApp } from 'vue'
 import App from './App.vue'
 import { AppPreset } from './theme'
@@ -18,4 +19,5 @@ createApp(App)
       },
     },
   })
+  .use(ConfirmationService)
   .mount('#app')

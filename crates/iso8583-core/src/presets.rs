@@ -26,10 +26,30 @@ mod tests {
     use crate::spec::{FieldKind, LenType, LengthHeader, SubSpec};
 
     #[test]
-    fn every_preset_parses() {
+    fn every_preset_parses_and_validates() {
         for name in NAMES {
-            load(name).unwrap_or_else(|e| panic!("{name}: {e}"));
+            let spec = load(name).unwrap_or_else(|e| panic!("{name}: {e}"));
+            assert_eq!(spec.validate(), Vec::<String>::new(), "{name}");
         }
+    }
+
+    #[test]
+    fn validate_reports_inconsistent_settings() {
+        let mut spec = load("cup_pos").unwrap();
+        spec.name = " ".into();
+        spec.frame.header.parts[0].len = 3;
+        let pan = spec.fields.get_mut(&2).unwrap();
+        pan.max_len = 120;
+        spec.fields.get_mut(&64).unwrap().max_len = 60;
+        spec.fields.get_mut(&48).unwrap().sub = Some(SubSpec::Tlv);
+
+        let problems = spec.validate();
+        let has = |text: &str| problems.iter().any(|p| p.contains(text));
+        assert!(has("规范名称不能为空"), "{problems:?}");
+        assert!(has("报文头子段共 13 位"), "{problems:?}");
+        assert!(has("第 2 域：LLVAR 最大长度不能超过 99"), "{problems:?}");
+        assert!(has("第 64 域：b 型定长按 bit 计"), "{problems:?}");
+        assert!(has("第 48 域：只有 b 型域可以按 TLV 拆解"), "{problems:?}");
     }
 
     #[test]

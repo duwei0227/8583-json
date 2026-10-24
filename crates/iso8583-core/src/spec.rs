@@ -17,6 +17,87 @@ pub struct Spec {
     pub fields: BTreeMap<u8, FieldSpec>,
 }
 
+/// 当前支持的规范文件格式版本。
+pub const SCHEMA_VERSION: u32 = 1;
+
+impl Spec {
+    /// 检查规范自身是否自洽，返回所有问题（空表示通过）。
+    /// 导入规范和应用修改前都要先校验，避免带着错误配置去解析报文。
+    pub fn validate(&self) -> Vec<String> {
+        let mut problems = Vec::new();
+        if self.schema != SCHEMA_VERSION {
+            problems.push(format!(
+                "不支持的规范版本 {}（当前支持 {SCHEMA_VERSION}）",
+                self.schema
+            ));
+        }
+        if self.name.trim().is_empty() {
+            problems.push("规范名称不能为空".into());
+        }
+
+        let header = &self.frame.header;
+        let digits: u32 = header.parts.iter().map(|p| p.len as u32).sum();
+        if header.len == 0 && !header.parts.is_empty() {
+            problems.push("没有报文头时不能定义报文头子段".into());
+        }
+        if header.len > 0 && !header.parts.is_empty() && digits != header.len as u32 * 2 {
+            problems.push(format!(
+                "报文头子段共 {digits} 位，应等于报文头 {} 字节展开后的 {} 位",
+                header.len,
+                header.len as u32 * 2
+            ));
+        }
+        if header.parts.iter().any(|p| p.len == 0) {
+            problems.push("报文头子段长度必须大于 0".into());
+        }
+
+        for (&id, f) in &self.fields {
+            let mut bad = |reason: String| problems.push(format!("第 {id} 域：{reason}"));
+            if !(2..=128).contains(&id) {
+                bad("域号必须在 2–128 之间".into());
+            }
+            if f.name.trim().is_empty() {
+                bad("名称不能为空".into());
+            }
+            if f.max_len == 0 {
+                bad("最大长度必须大于 0".into());
+            }
+            match f.len_type {
+                LenType::LlVar if f.max_len > 99 => {
+                    bad(format!("LLVAR 最大长度不能超过 99，当前 {}", f.max_len))
+                }
+                LenType::LllVar if f.max_len > 999 => {
+                    bad(format!("LLLVAR 最大长度不能超过 999，当前 {}", f.max_len))
+                }
+                LenType::Fixed if f.kind == FieldKind::B && f.max_len % 8 != 0 => bad(format!(
+                    "b 型定长按 bit 计，必须是 8 的倍数，当前 {}",
+                    f.max_len
+                )),
+                _ => {}
+            }
+            match &f.sub {
+                Some(SubSpec::Tlv) if f.kind != FieldKind::B => {
+                    bad("只有 b 型域可以按 TLV 拆解".into())
+                }
+                Some(SubSpec::Positional { parts }) => {
+                    if f.kind == FieldKind::B {
+                        bad("b 型域不能按位置切分子域".into());
+                    }
+                    if parts.iter().any(|p| p.len == 0) {
+                        bad("子域长度必须大于 0".into());
+                    }
+                    let total: u32 = parts.iter().map(|p| p.len as u32).sum();
+                    if total > f.max_len as u32 {
+                        bad(format!("子域共 {total} 位，超过最大长度 {}", f.max_len));
+                    }
+                }
+                _ => {}
+            }
+        }
+        problems
+    }
+}
+
 /// 数据域之前的报文结构：长度头、TPDU、报文头、MTI、位图。
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]

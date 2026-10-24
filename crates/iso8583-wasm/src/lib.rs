@@ -27,6 +27,15 @@ pub fn preset(name: &str) -> Result<String, JsError> {
     presets::json(name).map(str::to_string).map_err(js_err)
 }
 
+/// 校验规范 JSON，返回问题列表；空列表表示通过。JSON 本身无效时也作为一条问题返回。
+#[wasm_bindgen(js_name = validateSpec)]
+pub fn validate_spec(spec_json: &str) -> Vec<String> {
+    match serde_json::from_str::<Spec>(spec_json) {
+        Ok(spec) => spec.validate(),
+        Err(e) => vec![format!("规范 JSON 无效：{e}")],
+    }
+}
+
 /// 解析十六进制报文，返回 `Decoded`。
 #[wasm_bindgen]
 pub fn decode(hex_text: &str, spec_json: &str) -> Result<JsValue, JsError> {
