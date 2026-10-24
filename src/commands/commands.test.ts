@@ -9,7 +9,7 @@ const actions: CommandActions = {
   saveJson: asyncNoop,
   parse: noop,
   pack: noop,
-  formatHex: noop,
+  format: noop,
   clear: noop,
   copyHex: asyncNoop,
   copyJson: asyncNoop,

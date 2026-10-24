@@ -74,6 +74,17 @@ export const useMessageStore = defineStore('message', () => {
     parse()
   }
 
+  /** 同时格式化 HEX 和 JSON；JSON 语法有误时保持原样并提示。 */
+  function format() {
+    hex.value = formatHex(hex.value)
+    if (!json.value.trim()) return
+    try {
+      json.value = JSON.stringify(JSON.parse(json.value), null, 2)
+    } catch (e) {
+      setStatus('warn', `HEX 已格式化；JSON 语法错误，未格式化：${errorText(e)}`)
+    }
+  }
+
   function clear() {
     hex.value = ''
     json.value = ''
@@ -84,8 +95,7 @@ export const useMessageStore = defineStore('message', () => {
 
   return {
     hex, json, decoded, selectedId, hoverId, revealRequest, status,
-    setStatus, parse, pack, loadSample, clear,
-    formatHex: () => (hex.value = formatHex(hex.value)),
+    setStatus, parse, pack, loadSample, clear, format,
     select: (id: string | null) => (selectedId.value = id),
     /** 选中并让逐段解析表滚动到这一行 */
     selectAndReveal: (id: string) => {

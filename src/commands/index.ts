@@ -33,7 +33,7 @@ export interface CommandActions {
   saveJson(): Promise<void>
   parse(): void
   pack(): void
-  formatHex(): void
+  format(): void
   clear(): void
   copyHex(): Promise<void>
   copyJson(): Promise<void>
@@ -58,7 +58,7 @@ export function createCommands(a: CommandActions): Command[] {
 
     { id: 'message.parse', label: '解析 8583 → JSON', icon: 'pi pi-play', group: 'edit', shortcut: 'CmdOrCtrl+Enter', toolbar: true, run: a.parse },
     { id: 'message.pack', label: '组包 JSON → 8583', icon: 'pi pi-replay', group: 'edit', shortcut: 'CmdOrCtrl+Shift+Enter', toolbar: true, run: a.pack },
-    { id: 'message.format', label: '格式化 HEX', icon: 'pi pi-align-left', group: 'edit', shortcut: 'CmdOrCtrl+Shift+F', toolbar: true, run: a.formatHex },
+    { id: 'message.format', label: '格式化 HEX / JSON', icon: 'pi pi-align-left', group: 'edit', shortcut: 'CmdOrCtrl+Shift+F', toolbar: true, run: a.format },
     { id: 'message.clear', label: '清空', icon: 'pi pi-trash', group: 'edit', toolbar: true, run: a.clear },
     { id: 'message.copyHex', label: '复制 HEX', icon: 'pi pi-copy', group: 'edit', run: a.copyHex },
     { id: 'message.copyJson', label: '复制 JSON', icon: 'pi pi-copy', group: 'edit', run: a.copyJson },

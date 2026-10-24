@@ -54,7 +54,7 @@ const commands = createCommands({
   saveJson: () => saveText('message.json', message.json),
   parse: message.parse,
   pack: message.pack,
-  formatHex: message.formatHex,
+  format: message.format,
   clear: message.clear,
   copyHex: () => copyText('HEX', message.hex),
   copyJson: () => copyText('JSON', message.json),
