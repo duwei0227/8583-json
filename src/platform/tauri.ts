@@ -1,10 +1,13 @@
+import { listen } from '@tauri-apps/api/event'
 import { Menu, MenuItem, PredefinedMenuItem, Submenu } from '@tauri-apps/api/menu'
+import { getCurrentWebview } from '@tauri-apps/api/webview'
+import { getCurrentWindow } from '@tauri-apps/api/window'
 import { writeText } from '@tauri-apps/plugin-clipboard-manager'
 import { open, save } from '@tauri-apps/plugin-dialog'
 import { readFile, writeFile } from '@tauri-apps/plugin-fs'
 import { load } from '@tauri-apps/plugin-store'
 import { COMMAND_GROUPS, type Command } from '../commands'
-import type { KeyValueStore, Platform } from './types'
+import type { FileDropHandlers, KeyValueStore, Platform } from './types'
 
 export function createTauriPlatform(): Platform {
   return {
@@ -27,8 +30,29 @@ export function createTauriPlatform(): Platform {
 
     storage: createStore('settings.json'),
 
+    onFileDrop,
+
     installMenu,
   }
+}
+
+/** Rust 侧（src-tauri/src/lib.rs）读取拖入的文件后发出的事件 */
+interface DroppedFile {
+  name: string
+  bytes?: number[]
+  error?: string
+}
+
+function onFileDrop(h: FileDropHandlers) {
+  // 遮罩只关心拖入 / 离开；文件内容由 Rust 读取，前端无需额外的文件系统权限
+  void getCurrentWebview().onDragDropEvent((e) => {
+    h.onDragging(e.payload.type === 'enter' || e.payload.type === 'over')
+  })
+  void listen<DroppedFile>('file-dropped', (e) => {
+    const { name, bytes, error } = e.payload
+    if (error || !bytes) h.onError(error ?? `无法读取 ${name}`)
+    else h.onFile({ name, bytes: new Uint8Array(bytes) })
+  })
 }
 
 function createStore(file: string): KeyValueStore {
@@ -62,14 +86,18 @@ async function installMenu(commands: Command[]): Promise<void> {
       if (group.id === 'edit') {
         items.push(
           await PredefinedMenuItem.new({ item: 'Separator' }),
-          await PredefinedMenuItem.new({ item: 'Cut' }),
-          await PredefinedMenuItem.new({ item: 'Copy' }),
-          await PredefinedMenuItem.new({ item: 'Paste' }),
-          await PredefinedMenuItem.new({ item: 'SelectAll' }),
+          await PredefinedMenuItem.new({ item: 'Cut', text: '剪切' }),
+          await PredefinedMenuItem.new({ item: 'Copy', text: '复制' }),
+          await PredefinedMenuItem.new({ item: 'Paste', text: '粘贴' }),
+          await PredefinedMenuItem.new({ item: 'SelectAll', text: '全选' }),
         )
       }
+      // 系统预置的「退出」在 Linux 上不受支持（显示为禁用的英文 Quit），改用自定义项关闭窗口
       if (group.id === 'file') {
-        items.push(await PredefinedMenuItem.new({ item: 'Separator' }), await PredefinedMenuItem.new({ item: 'Quit' }))
+        items.push(
+          await PredefinedMenuItem.new({ item: 'Separator' }),
+          await MenuItem.new({ id: 'app.quit', text: '退出', accelerator: 'CmdOrCtrl+Q', action: () => void getCurrentWindow().close() }),
+        )
       }
       return Submenu.new({ text: group.label, items })
     }),

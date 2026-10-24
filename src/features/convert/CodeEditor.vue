@@ -73,7 +73,7 @@ function extensions(): Extension[] {
   ]
   if (props.placeholder) common.push(placeholderExt(props.placeholder))
   return props.language === 'json'
-    ? [...common, json(), linter(jsonParseLinter()), lintGutter()]
+    ? [...common, json(), linter((v) => (v.state.doc.length ? jsonParseLinter()(v) : [])), lintGutter()]
     : [...common, highlightField, hexLinter]
 }
 

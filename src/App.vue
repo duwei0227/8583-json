@@ -2,7 +2,7 @@
 import ConfirmDialog from 'primevue/confirmdialog'
 import { onMounted } from 'vue'
 import { codec, initCodec } from './codec'
-import { createCommands } from './commands'
+import { createCommands, matchShortcut } from './commands'
 import ConvertView from './features/convert/ConvertView.vue'
 import HistoryDrawer from './features/history/HistoryDrawer.vue'
 import AppToolbar from './features/shell/AppToolbar.vue'
@@ -10,16 +10,30 @@ import InfoDialogs from './features/shell/InfoDialogs.vue'
 import StatusBar from './features/shell/StatusBar.vue'
 import ImportSpecDialog from './features/spec/ImportSpecDialog.vue'
 import SpecDialog from './features/spec/SpecDialog.vue'
-import { getPlatform } from './platform'
+import { getPlatform, type OpenedFile } from './platform'
 import { useHistoryStore } from './stores/history'
 import { useMessageStore } from './stores/message'
 import { useSpecStore } from './stores/spec'
 import { useUiStore } from './stores/ui'
+import { readMessageFile } from './utils/files'
 
 const message = useMessageStore()
 const spec = useSpecStore()
 const history = useHistoryStore()
 const ui = useUiStore()
+
+/** 打开或拖入的文件：JSON 填入 JSON 编辑器后组包，其余填入 HEX 编辑器后解析。 */
+function loadFile(file: OpenedFile) {
+  const { target, text } = readMessageFile(file.name, file.bytes)
+  if (target === 'json') {
+    message.json = text
+    message.pack()
+  } else {
+    message.hex = text
+    message.parse()
+  }
+  if (message.status.kind !== 'err') message.setStatus('ok', `已打开 ${file.name} · ${message.status.text}`)
+}
 
 async function saveText(name: string, text: string) {
   if (!text.trim()) return message.setStatus('warn', '没有可保存的内容')
@@ -33,12 +47,8 @@ async function copyText(label: string, text: string) {
 
 const commands = createCommands({
   async openFile() {
-    const file = await (await getPlatform()).openFile(['hex', 'txt', 'json'])
-    if (!file) return
-    const text = new TextDecoder().decode(file.bytes)
-    if (file.name.endsWith('.json')) message.json = text
-    else message.hex = text
-    message.setStatus('info', `已打开 ${file.name}`)
+    const file = await (await getPlatform()).openFile(['hex', 'txt', 'bin', 'json'])
+    if (file) loadFile(file)
   },
   saveHex: () => saveText('message.hex', message.hex),
   saveJson: () => saveText('message.json', message.json),
@@ -73,6 +83,25 @@ onMounted(async () => {
   } catch (e) {
     message.setStatus('err', `编解码核心加载失败：${e instanceof Error ? e.message : String(e)}`)
   }
+  platform.onFileDrop({
+    onDragging: (active) => (ui.dragging = active),
+    onFile: loadFile,
+    onError: (text) => message.setStatus('err', text),
+  })
+  // 桌面端由原生菜单注册快捷键；Web 端在捕获阶段监听，先于编辑器处理
+  if (platform.kind === 'web') {
+    window.addEventListener(
+      'keydown',
+      (e) => {
+        const command = commands.find((c) => c.shortcut && matchShortcut(c.shortcut, e, ui.isMac))
+        if (!command) return
+        e.preventDefault()
+        e.stopPropagation()
+        void command.run()
+      },
+      true,
+    )
+  }
   await Promise.all([platform.installMenu(commands), history.load()])
 })
 </script>
@@ -89,5 +118,12 @@ onMounted(async () => {
     <InfoDialogs :commands="commands" />
     <ImportSpecDialog />
     <ConfirmDialog />
+    <div v-if="ui.dragging" class="pointer-events-none fixed inset-3 z-[2000] flex items-center justify-center rounded-xl border-2 border-dashed border-primary bg-blue-50/90" aria-live="polite">
+      <div class="flex flex-col items-center gap-2 text-primary">
+        <i class="pi pi-file-import text-3xl" aria-hidden="true" />
+        <span class="text-base font-semibold">松开以打开报文文件</span>
+        <span class="text-xs text-surface-600">.hex / .txt 十六进制文本、.bin 原始字节、.json 报文</span>
+      </div>
+    </div>
   </div>
 </template>

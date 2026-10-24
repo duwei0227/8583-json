@@ -323,6 +323,9 @@ SpecDialog 编辑 → specStore.draft 改变（dirty = true）
 - 以后需要批量解析大文件、或联机 TCP 发送时，再在 `src-tauri` 里直接依赖 `iso8583-core` 加 command，不影响现有结构。
 - `capabilities/default.json` 只授予必需权限：dialog 的打开和保存、限定作用域的 fs 读写、store、clipboard 写入、updater。
 - 窗口标题栏使用**系统原生**的，不自绘。
+- **拖入文件由 Rust 读取**：`on_window_event` 收到 `DragDrop::Drop` 后只读取这次拖入的路径（上限 1 MB），以 `file-dropped` 事件发给前端。前端因此不需要文件系统读权限，打开文件只经过系统对话框。
+- **「退出」是自定义菜单项**：系统预置的 Quit 在 Linux 上不受支持（显示为禁用），改为调用 `getCurrentWindow().close()`，需要 `core:window:allow-close` 权限。
+- 版本号只在 `package.json` 维护：Vite 构建时注入 `__APP_VERSION__`，`tauri.conf.json` 的 `version` 指向 `../package.json`。
 
 ## 8. Web 端
 
@@ -354,7 +357,8 @@ SpecDialog 编辑 → specStore.draft 改变（dirty = true）
 | 随机往返测试 | 固定种子的伪随机生成 | 按规范随机生成 500 条合法报文：encode → decode 必须还原；随机字节输入绝不 panic |
 | 黄金样例 | `src/samples/*.json` + 对应 HEX | Rust 和前端**共用同一批样例**，保证两端结果一致；原型里的 11 个示例直接作为第一批 |
 | 前端单元 | Vitest | stores、explain 文案、平台适配层（mock） |
-| 端到端 | Playwright（Web 构建） | 载入示例 → 解析 → 选中联动 → 修改规范 → 组包 |
+| 端到端 | Playwright（Web 构建） | 载入示例 → 解析 → 选中联动 → 修改规范 → 组包 → 快捷键 → 打开 / 拖入文件 |
+| 桌面端到端 | tauri-driver + WebKitWebDriver（Linux） | 真实 Tauri 应用里解析、选中联动、历史经 tauri-plugin-store 重启后仍在 |
 
 ### 9.3 CI（GitHub Actions）
 

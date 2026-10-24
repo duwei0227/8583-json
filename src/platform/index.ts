@@ -1,7 +1,7 @@
 import { isTauri } from '@tauri-apps/api/core'
 import type { Platform } from './types'
 
-export type { KeyValueStore, OpenedFile, Platform } from './types'
+export type { FileDropHandlers, KeyValueStore, OpenedFile, Platform } from './types'
 
 let current: Promise<Platform> | undefined
 

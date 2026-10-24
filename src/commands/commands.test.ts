@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { COMMAND_GROUPS, createCommands, formatShortcut, type CommandActions } from '.'
+import { COMMAND_GROUPS, createCommands, formatShortcut, matchShortcut, type CommandActions } from '.'
 
 const noop = () => {}
 const asyncNoop = async () => {}
@@ -42,5 +42,15 @@ describe('command registry', () => {
   it('formats shortcuts per platform', () => {
     expect(formatShortcut('CmdOrCtrl+Shift+Enter', false)).toBe('Ctrl+Shift+Enter')
     expect(formatShortcut('CmdOrCtrl+O', true)).toBe('⌘+O')
+  })
+
+  it('matches keyboard events against accelerators', () => {
+    const key = (k: string, mods: Partial<KeyboardEvent> = {}) =>
+      ({ key: k, ctrlKey: false, metaKey: false, shiftKey: false, altKey: false, ...mods }) as KeyboardEvent
+    expect(matchShortcut('CmdOrCtrl+Enter', key('Enter', { ctrlKey: true }), false)).toBe(true)
+    expect(matchShortcut('CmdOrCtrl+Enter', key('Enter', { metaKey: true }), true)).toBe(true)
+    expect(matchShortcut('CmdOrCtrl+Enter', key('Enter', { ctrlKey: true, shiftKey: true }), false)).toBe(false)
+    expect(matchShortcut('CmdOrCtrl+Shift+S', key('S', { ctrlKey: true, shiftKey: true }), false)).toBe(true)
+    expect(matchShortcut('CmdOrCtrl+O', key('o'), false)).toBe(false)
   })
 })

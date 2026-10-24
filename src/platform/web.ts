@@ -1,4 +1,7 @@
-import type { KeyValueStore, OpenedFile, Platform } from './types'
+import type { FileDropHandlers, KeyValueStore, OpenedFile, Platform } from './types'
+
+/** 与桌面端一致的拖入文件大小上限 */
+const MAX_DROP_BYTES = 1024 * 1024
 
 export function createWebPlatform(): Platform {
   return {
@@ -7,8 +10,38 @@ export function createWebPlatform(): Platform {
     saveFile,
     copy: (text) => navigator.clipboard.writeText(text),
     storage: createIndexedDbStore('iso8583-json', 'kv'),
+    onFileDrop,
     installMenu: async () => {},
   }
+}
+
+function onFileDrop(h: FileDropHandlers) {
+  // dragenter / dragleave 会在子元素间反复触发，用计数判断是否真正离开窗口
+  let depth = 0
+  const hasFiles = (e: DragEvent) => e.dataTransfer?.types.includes('Files') ?? false
+  window.addEventListener('dragenter', (e) => {
+    if (!hasFiles(e)) return
+    depth++
+    h.onDragging(true)
+  })
+  window.addEventListener('dragleave', (e) => {
+    if (!hasFiles(e)) return
+    depth = Math.max(0, depth - 1)
+    if (depth === 0) h.onDragging(false)
+  })
+  window.addEventListener('dragover', (e) => {
+    if (hasFiles(e)) e.preventDefault()
+  })
+  window.addEventListener('drop', async (e) => {
+    if (!hasFiles(e)) return
+    e.preventDefault()
+    depth = 0
+    h.onDragging(false)
+    const file = e.dataTransfer?.files[0]
+    if (!file) return
+    if (file.size > MAX_DROP_BYTES) return h.onError(`文件 ${file.name} 超过 1 MB，不像是单条报文`)
+    h.onFile({ name: file.name, bytes: new Uint8Array(await file.arrayBuffer()) })
+  })
 }
 
 function openFile(extensions: string[]): Promise<OpenedFile | null> {

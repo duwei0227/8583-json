@@ -79,3 +79,16 @@ export function createCommands(a: CommandActions): Command[] {
 export function formatShortcut(shortcut: string, mac: boolean): string {
   return shortcut.replace('CmdOrCtrl', mac ? '⌘' : 'Ctrl')
 }
+
+/** 键盘事件是否匹配 accelerator（Web 端页面快捷键用；桌面端由原生菜单注册）。 */
+export function matchShortcut(shortcut: string, e: Pick<KeyboardEvent, 'key' | 'ctrlKey' | 'metaKey' | 'shiftKey' | 'altKey'>, mac: boolean): boolean {
+  const parts = shortcut.split('+')
+  const key = parts.pop()!.toLowerCase()
+  const want = {
+    mod: parts.includes('CmdOrCtrl'),
+    shift: parts.includes('Shift'),
+    alt: parts.includes('Alt'),
+  }
+  const mod = mac ? e.metaKey : e.ctrlKey
+  return mod === want.mod && e.shiftKey === want.shift && e.altKey === want.alt && e.key.toLowerCase() === key
+}

@@ -25,7 +25,7 @@ const shortcuts = computed(() =>
 )
 
 const about = [
-  ['版本', '0.1.0'],
+  ['版本', __APP_VERSION__],
   ['技术栈', 'Tauri 2 · Vue 3 · TypeScript · PrimeVue · Tailwind 4'],
   ['内置规范', '银联 POS'],
   ['数据处理', '全部在本机完成，不上传报文'],
@@ -49,7 +49,7 @@ const fieldsOpen = visible('fields')
         <dd class="m-0 font-mono text-xs text-surface-600">{{ s.key }}</dd>
       </div>
     </dl>
-    <p class="mt-3 mb-0 text-xs text-surface-500">桌面端由原生菜单注册快捷键；Web 版暂不提供。</p>
+    <p class="mt-3 mb-0 text-xs text-surface-500">桌面端由原生菜单注册快捷键；Web 版在页面内生效，与浏览器自带快捷键冲突时以本应用为准。</p>
   </Dialog>
 
   <Dialog v-model:visible="fieldsOpen" :header="`8583 字段速查 · ${spec.current?.name ?? ''}`" modal class="w-[32rem] max-w-[calc(100vw-2rem)]">

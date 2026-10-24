@@ -17,6 +17,7 @@ const tone: Record<StatusKind, { label: string; dot: string; text: string }> = {
 }
 const current = computed(() => tone[message.status.kind])
 
+const version = __APP_VERSION__
 const h4 = (n: number) => '0x' + n.toString(16).toUpperCase().padStart(4, '0')
 const selection = computed(() => {
   const s = message.decoded?.segments.find((x) => x.id === message.selectedId)
@@ -33,6 +34,6 @@ const selection = computed(() => {
     </span>
     <span v-if="selection" class="ml-auto font-mono">{{ selection }}</span>
     <span :class="{ 'ml-auto': !selection }">{{ spec.current?.name }}</span>
-    <span>{{ ui.platformKind === 'desktop' ? '桌面端' : 'Web' }} · v0.1.0</span>
+    <span>{{ ui.platformKind === 'desktop' ? '桌面端' : 'Web' }} · v{{ version }}</span>
   </footer>
 </template>
