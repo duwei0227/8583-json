@@ -113,7 +113,8 @@ const ICON_COLOR = '#52525b'
 
 /**
  * 把 PrimeIcons 图标画成 RGBA 位图，供原生菜单使用，与工具栏图标保持一致。
- * 原生菜单只接受位图；字体未就绪或绘制失败时返回 undefined，菜单项照常显示文字。
+ * 原生菜单只接受位图；Linux 上带图标的菜单项不显示快捷键文字（muda 的缺陷），快捷键本身照常可用。
+ * 字体未就绪或绘制失败时返回 undefined，菜单项照常显示文字。
  */
 async function menuIcon(icon: string): Promise<Image | undefined> {
   try {
