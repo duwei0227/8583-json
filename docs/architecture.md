@@ -206,13 +206,15 @@ pub struct Segment {
 | Store | 状态 | 关键动作 |
 |---|---|---|
 | `message` | `hex` · `json` · `decoded` · `error` · `selectedId` · `hoverId` | `parse()` · `pack()` · `select(id)` · `loadSample(key)` |
-| `spec` | `specs[]` · `currentId` · `draft`（编辑中副本） · `dirty` | `updateField()` · `apply()` · `reset()` · `import()` · `export()` |
+| `spec` | `entries[]`（内置预设 + 自定义，持久化） · `currentId` · `draft`（编辑中副本） · `dirty` · `draftProblems` | `edit()` · `apply()`（先校验） · `resetDraftToPreset()` · `create()` · `remove()` · `importJson()` · `exportJson()` |
 | `history` | `items[]`（最多 50 条） | `push()` · `remove()` · `clear()`，通过 `platform.storage` 持久化 |
 | `ui` | `menuOpen` · `drawer` · `specDialog` · `modal` · `layout` | 纯 UI 状态，不持久化（`layout` 除外） |
 
 **选中段只有一个来源**：`message.selectedId`。报文结构色块、逐段解析表、位图、详情面板都从它派生，点任何一处都只调用 `select(id)`。这样从结构上保证四处联动不会不同步。
 
-**规范编辑用草稿**：在域定义弹窗里修改的是 `spec.draft`；点「完成并重新解析」时才写回当前规范，并触发 `message.parse()`。对应原型里「● 有未应用的修改」的提示。
+**规范编辑用草稿**：在域定义面板里修改的是 `spec.draft`；点「完成并重新解析」时才写回当前规范，并触发 `message.parse()`。对应原型里「● 有未应用的修改」的提示。
+
+**规范校验只有一份**：`Spec::validate()` 在 Rust 核心里实现（子段位数、LLVAR / LLLVAR 上限、b 型定长须为 8 的倍数、TLV 只用于 b 型等），通过 WASM 的 `validateSpec` 暴露给前端；草稿实时校验、应用前和导入前都调用它。
 
 ### 5.2 命令注册表（`src/commands`）
 
@@ -248,7 +250,7 @@ export interface Command {
 | 逐段解析表 | `SegmentTable` | 原生 `<table>` + Tailwind（选中态需要左侧竖条、徽标反白等细节，比定制 `DataTable` 更直接） |
 | 位图 | `BitmapGrid` | 自绘（8 列网格） |
 | 详情面板 | `SegmentDetail` | 自绘（逐位拆解、取值选项、TLV 列表） |
-| 域定义 | `SpecDialog` · `FieldTable` · `FieldEditor` | `Dialog`（全屏） · `DataTable` · `InputText` · `Select` · `InputNumber` |
+| 域定义 | `SpecDialog` · `SpecList` · `FrameSettings` · `FieldTable` · `FieldEditor` · `PartsEditor` · `ImportSpecDialog` | `Drawer`（全屏） · `InputText` · `Select` · `InputNumber` · `ConfirmDialog` · `Message` |
 | 历史 | `HistoryDrawer` | `Drawer` |
 | 关于、快捷键、字段速查 | `*Dialog` | `Dialog` |
 
