@@ -1,0 +1,42 @@
+{
+  "name": "iso8583-json",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "ISO 8583 报文与 JSON 双向转换工具（Web + Tauri 桌面端）",
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "wasm": "wasm-pack build crates/iso8583-wasm --target web --release --out-dir ../../src/codec/pkg --out-name iso8583",
+    "gen:types": "cargo test -p iso8583-core",
+    "dev": "pnpm wasm && vite",
+    "dev:web": "vite",
+    "typecheck": "vue-tsc --noEmit",
+    "test": "vitest run",
+    "build:web": "pnpm wasm && vue-tsc --noEmit && vite build",
+    "build:desktop": "tauri build",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@primeuix/themes": "^1.2.5",
+    "@tauri-apps/api": "^2.12.4",
+    "@tauri-apps/plugin-clipboard-manager": "^2.5.0",
+    "@tauri-apps/plugin-dialog": "^2.8.3",
+    "@tauri-apps/plugin-fs": "^2.7.1",
+    "@tauri-apps/plugin-store": "^2.5.0",
+    "pinia": "^4.1.0",
+    "primeicons": "^7.0.0",
+    "primevue": "4.5.5",
+    "vue": "^3.5.44"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@tauri-apps/cli": "^2.12.4",
+    "@vitejs/plugin-vue": "^6.0.10",
+    "tailwindcss": "^4.3.3",
+    "tailwindcss-primeui": "^0.6.1",
+    "typescript": "^6.0.3",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5",
+    "vue-tsc": "^3.3.13"
+  }
+}

@@ -1,0 +1,22 @@
+[package]
+name = "iso8583-desktop"
+description = "8583 ⇄ JSON 报文转换工具（桌面端）"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+name = "iso8583_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[dependencies]
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+tauri = "2.12.5"
+tauri-plugin-clipboard-manager = "2.5.0"
+tauri-plugin-dialog = "2.8.3"
+tauri-plugin-fs = "2.7.1"
+tauri-plugin-store = "2.5.0"
+tauri-plugin-window-state = "2.5.0"
+
+[build-dependencies]
+tauri-build = "2.7.4"

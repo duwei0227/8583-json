@@ -1,0 +1,4 @@
+[env]
+# ts-rs：`cargo test -p iso8583-core` 时把 Rust 类型导出为 TypeScript
+TS_RS_EXPORT_DIR = { value = "src/codec/types", relative = true }
+TS_RS_LARGE_INT = "number"

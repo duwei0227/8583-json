@@ -1,0 +1,279 @@
+{
+  "schema": 1,
+  "name": "银联 POS",
+  "frame": {
+    "lengthHeader": "binary2",
+    "tpduLen": 5,
+    "header": {
+      "len": 6,
+      "parts": [
+        {
+          "name": "应用类别",
+          "len": 2
+        },
+        {
+          "name": "软件总版本号",
+          "len": 2
+        },
+        {
+          "name": "终端状态",
+          "len": 1
+        },
+        {
+          "name": "处理要求",
+          "len": 1
+        },
+        {
+          "name": "软件分版本号",
+          "len": 6
+        }
+      ]
+    },
+    "mtiEncoding": "bcd",
+    "bitmapEncoding": "binary",
+    "lenPrefixEncoding": "bcd"
+  },
+  "fields": {
+    "2": {
+      "name": "主账号",
+      "kind": "n",
+      "maxLen": 19,
+      "lenType": "llVar"
+    },
+    "3": {
+      "name": "交易处理码",
+      "kind": "n",
+      "maxLen": 6,
+      "lenType": "fixed"
+    },
+    "4": {
+      "name": "交易金额",
+      "kind": "n",
+      "maxLen": 12,
+      "lenType": "fixed"
+    },
+    "11": {
+      "name": "系统跟踪号",
+      "kind": "n",
+      "maxLen": 6,
+      "lenType": "fixed"
+    },
+    "12": {
+      "name": "本地交易时间",
+      "kind": "n",
+      "maxLen": 6,
+      "lenType": "fixed"
+    },
+    "13": {
+      "name": "本地交易日期",
+      "kind": "n",
+      "maxLen": 4,
+      "lenType": "fixed"
+    },
+    "14": {
+      "name": "卡有效期",
+      "kind": "n",
+      "maxLen": 4,
+      "lenType": "fixed"
+    },
+    "15": {
+      "name": "清算日期",
+      "kind": "n",
+      "maxLen": 4,
+      "lenType": "fixed"
+    },
+    "22": {
+      "name": "服务点输入方式码",
+      "kind": "n",
+      "maxLen": 3,
+      "lenType": "fixed"
+    },
+    "23": {
+      "name": "卡序列号",
+      "kind": "n",
+      "maxLen": 3,
+      "lenType": "fixed"
+    },
+    "25": {
+      "name": "服务点条件码",
+      "kind": "n",
+      "maxLen": 2,
+      "lenType": "fixed"
+    },
+    "26": {
+      "name": "服务点PIN获取码",
+      "kind": "n",
+      "maxLen": 2,
+      "lenType": "fixed"
+    },
+    "32": {
+      "name": "受理机构标识码",
+      "kind": "n",
+      "maxLen": 11,
+      "lenType": "llVar"
+    },
+    "35": {
+      "name": "二磁道数据",
+      "kind": "z",
+      "maxLen": 37,
+      "lenType": "llVar"
+    },
+    "36": {
+      "name": "三磁道数据",
+      "kind": "z",
+      "maxLen": 104,
+      "lenType": "lllVar"
+    },
+    "37": {
+      "name": "检索参考号",
+      "kind": "an",
+      "maxLen": 12,
+      "lenType": "fixed"
+    },
+    "38": {
+      "name": "授权标识应答码",
+      "kind": "an",
+      "maxLen": 6,
+      "lenType": "fixed"
+    },
+    "39": {
+      "name": "应答码",
+      "kind": "an",
+      "maxLen": 2,
+      "lenType": "fixed"
+    },
+    "41": {
+      "name": "受卡机终端标识码",
+      "kind": "ans",
+      "maxLen": 8,
+      "lenType": "fixed"
+    },
+    "42": {
+      "name": "受卡方标识码",
+      "kind": "ans",
+      "maxLen": 15,
+      "lenType": "fixed"
+    },
+    "44": {
+      "name": "附加响应数据",
+      "kind": "ans",
+      "maxLen": 25,
+      "lenType": "llVar"
+    },
+    "48": {
+      "name": "附加数据-私有",
+      "kind": "ans",
+      "maxLen": 322,
+      "lenType": "lllVar"
+    },
+    "49": {
+      "name": "交易货币代码",
+      "kind": "an",
+      "maxLen": 3,
+      "lenType": "fixed"
+    },
+    "52": {
+      "name": "个人标识码数据",
+      "kind": "b",
+      "maxLen": 64,
+      "lenType": "fixed"
+    },
+    "53": {
+      "name": "安全控制信息",
+      "kind": "n",
+      "maxLen": 16,
+      "lenType": "fixed"
+    },
+    "54": {
+      "name": "附加金额",
+      "kind": "an",
+      "maxLen": 20,
+      "lenType": "lllVar"
+    },
+    "55": {
+      "name": "IC卡数据域",
+      "kind": "b",
+      "maxLen": 255,
+      "lenType": "lllVar",
+      "sub": {
+        "type": "tlv"
+      }
+    },
+    "60": {
+      "name": "自定义域",
+      "kind": "n",
+      "maxLen": 17,
+      "lenType": "lllVar",
+      "sub": {
+        "type": "positional",
+        "parts": [
+          {
+            "name": "交易类型码",
+            "len": 2
+          },
+          {
+            "name": "批次号",
+            "len": 6
+          },
+          {
+            "name": "网络管理信息码",
+            "len": 3
+          },
+          {
+            "name": "终端读取能力",
+            "len": 1
+          },
+          {
+            "name": "IC 卡条件代码",
+            "len": 1
+          },
+          {
+            "name": "部分扣款标志",
+            "len": 1
+          }
+        ]
+      }
+    },
+    "61": {
+      "name": "原始信息域",
+      "kind": "n",
+      "maxLen": 29,
+      "lenType": "lllVar",
+      "sub": {
+        "type": "positional",
+        "parts": [
+          {
+            "name": "原批次号",
+            "len": 6
+          },
+          {
+            "name": "原流水号",
+            "len": 6
+          },
+          {
+            "name": "原交易日期",
+            "len": 4
+          }
+        ]
+      }
+    },
+    "62": {
+      "name": "自定义域",
+      "kind": "ans",
+      "maxLen": 512,
+      "lenType": "lllVar"
+    },
+    "63": {
+      "name": "自定义域",
+      "kind": "ans",
+      "maxLen": 163,
+      "lenType": "lllVar"
+    },
+    "64": {
+      "name": "报文鉴别码",
+      "kind": "b",
+      "maxLen": 64,
+      "lenType": "fixed"
+    }
+  }
+}

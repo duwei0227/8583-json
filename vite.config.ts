@@ -1,0 +1,18 @@
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import tailwindcss from '@tailwindcss/vite'
+
+// 同一份配置服务 Web 构建与 Tauri（tauri dev 访问固定端口 1420）
+export default defineConfig({
+  plugins: [vue(), tailwindcss()],
+  clearScreen: false,
+  envPrefix: ['VITE_', 'TAURI_ENV_'],
+  server: {
+    port: 1420,
+    strictPort: true,
+    watch: { ignored: ['**/src-tauri/**', '**/crates/**', '**/target/**'] },
+  },
+  test: {
+    environment: 'node',
+  },
+})

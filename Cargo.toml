@@ -1,0 +1,13 @@
+[workspace]
+resolver = "2"
+members = ["crates/iso8583-core", "crates/iso8583-wasm", "src-tauri"]
+# 默认只构建编解码核心；src-tauri 依赖系统 WebView，需要显式 -p 或 tauri CLI 构建
+default-members = ["crates/iso8583-core", "crates/iso8583-wasm"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+
+[profile.release]
+lto = true
+codegen-units = 1

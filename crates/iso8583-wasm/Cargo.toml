@@ -1,0 +1,19 @@
+[package]
+name = "iso8583-wasm"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+iso8583-core = { version = "0.1.0", path = "../iso8583-core" }
+serde-wasm-bindgen = "0.6.5"
+serde_json = "1.0.154"
+wasm-bindgen = "0.2.129"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+# 新版 Rust 默认启用 reference-types 等特性，旧版 wasm-opt（如 Ubuntu 自带的 binaryen 108）
+# 优化后浏览器加载会报 Table.grow 失败。先关闭 wasm-opt（gzip 后约 79 KB），
+# 待 CI 固定使用新版 binaryen 后再开启。
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false

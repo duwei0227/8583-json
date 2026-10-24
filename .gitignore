@@ -1,0 +1,7 @@
+node_modules/
+dist/
+target/
+# wasm-pack 产物，由 `pnpm wasm` 生成
+src/codec/pkg/
+*.log
+.DS_Store

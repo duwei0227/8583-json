@@ -1,0 +1,17 @@
+/* PrimeVue 的样式层放在 Tailwind utilities 之前，工具类可以直接覆盖组件样式 */
+@layer theme, base, primevue, components, utilities;
+
+@import "tailwindcss";
+@import "tailwindcss-primeui";
+
+@theme {
+  --font-sans: Inter, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
