@@ -330,6 +330,7 @@ SpecDialog 编辑 → specStore.draft 改变（dirty = true）
 ## 8. Web 端
 
 - 产物是纯静态文件（`dist/`），可以部署到 Nginx、对象存储或 CDN，**没有后端**。
+- 线上部署选用 **Cloudflare Workers 静态资源**：Cloudflare 连接 GitHub 仓库，推送后执行 `scripts/cf-build.sh`（构建镜像不含 Rust，脚本先装 Rust 与 wasm-pack）再 `wrangler deploy`；配置见 `wrangler.jsonc`，响应头见 `public/_headers`。
 - 服务器需要把 `.wasm` 配置为 `application/wasm`，并启用 HTTPS（剪贴板 API 要求）。
 - 配置 CSP：只允许本域脚本和 `wasm-unsafe-eval`，禁止外连，从机制上保证报文不会被发送出去。
 - 不支持的能力（原生菜单、文件系统直写）在 UI 上隐藏或降级，不显示无法使用的按钮。

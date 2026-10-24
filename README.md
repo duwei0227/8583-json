@@ -14,7 +14,7 @@ ISO 8583 报文与 JSON 双向转换工具。同一套代码同时交付 **Web �
 | M2 转换页：CodeMirror 编辑器、报文结构、逐段解析表、位图、详情面板，五处选中联动 | ✅ |
 | M3 规范管理：多套规范、草稿编辑与校验、报文结构与子域配置、导入导出、恢复默认、确认弹窗 | ✅ |
 | M4 桌面端：原生菜单与快捷键（Web 端页面快捷键）、打开 .bin / .hex / .json、拖入文件、版本号统一 | ✅ |
-| M5 发布：签名、自动更新、Web 部署配置 | 待开始 |
+| M5 发布：Windows 安装包 + 绿色版、Web 部署到 Cloudflare | ✅（代码签名、自动更新暂不做） |
 
 ## 目录
 
@@ -58,3 +58,41 @@ src/                  前端（Web 与桌面共用）
 - **PrimeVue 固定为 4.5.5、PrimeIcons 固定为 7.x**：两者从 5.x / 8.x 起改为需要 License Key 的 PrimeUI 授权，4.5.5 / 7.x 仍为 MIT。升级前请先确认授权。
 - **TypeScript 使用 6.x**：TypeScript 7（原生版）暂不提供 vue-tsc 依赖的 JS API。
 - **WASM 暂不经过 wasm-opt**：旧版 binaryen（如 Ubuntu 自带的 108）会破坏新版 Rust 的产物，浏览器加载时报 `Table.grow` 失败。详见 `crates/iso8583-wasm/Cargo.toml`。
+
+## 发布
+
+### Windows 客户端
+
+推送 `v` 开头的标签即可自动构建并发布 GitHub Release（工作流见 `.github/workflows/release.yml`）：
+
+```bash
+# 先把 package.json 里的 version 改成要发布的版本并提交
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+产物有两个：
+
+- `8583-json_<版本>_x64-setup.exe`：安装包，中文界面，安装到当前用户目录，不需要管理员权限
+- `8583-json_<版本>_x64_portable.zip`：绿色版，解压后直接运行 `8583-json.exe`
+
+发布前想先试构建：在 GitHub 的 Actions 页面选择「Release (Windows)」→「Run workflow」，产物会出现在该次运行的 Artifacts 里，不会发布 Release。
+
+程序目前没有代码签名，首次运行时 Windows 可能提示「已保护你的电脑」，点「更多信息」→「仍要运行」即可。运行需要 WebView2 运行时，Windows 10 / 11 一般已自带。
+
+### Web 版（Cloudflare Workers）
+
+Cloudflare 直接连接本仓库，推送到 `master` 后自动构建部署。一次性配置：
+
+1. 登录 Cloudflare 控制台 → **Workers & Pages** → **Create** → 导入 GitHub 仓库 `duwei0227/8583-json`
+2. 构建设置：
+   - **Build command**：`bash scripts/cf-build.sh`
+   - **Deploy command**：`npx wrangler deploy`（默认值）
+   - 根目录保持仓库根目录，生产分支选 `master`
+3. 保存并部署。完成后网址为 `https://iso8583-json.<你的子域>.workers.dev`，可在设置里绑定自己的域名
+
+说明：
+
+- Cloudflare 的构建镜像不含 Rust，`scripts/cf-build.sh` 会先安装 Rust 与 wasm-pack 再构建，每次部署大约需要 4 分钟
+- 站点配置在 `wrangler.jsonc`；响应头（CSP 等）在 `public/_headers`，构建时复制到 `dist/`
+- CSP 只允许加载本站资源，报文不会被发送到任何其他地址

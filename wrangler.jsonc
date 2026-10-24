@@ -1,0 +1,11 @@
+{
+  // Cloudflare Workers 静态站点：只托管 dist/，没有 Worker 脚本
+  // 构建命令在 Cloudflare 控制台里设置为：bash scripts/cf-build.sh
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "iso8583-json",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}
