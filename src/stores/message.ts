@@ -88,13 +88,13 @@ export const useMessageStore = defineStore('message', () => {
 
 /** 解析结果 → JSON 报文（与 `MessageJson` 契约一致）。 */
 function toMessage(d: Decoded): MessageJson {
-  const message: MessageJson = { mti: d.mti, fields: {} }
-  for (const s of d.segments) {
-    if (s.id === 'tpdu') message.tpdu = s.raw
-    else if (s.id === 'header') message.header = s.raw
-    else if (/^\d+$/.test(s.id)) message.fields[Number(s.id)] = s.value
-  }
-  return message
+  const raw = (id: string) => d.segments.find((s) => s.id === id)?.raw
+  const tpdu = raw('tpdu')
+  const header = raw('header')
+  const fields: MessageJson['fields'] = {}
+  for (const s of d.segments) if (/^\d+$/.test(s.id)) fields[Number(s.id)] = s.value
+  // 键顺序与契约一致：mti、tpdu、header、fields
+  return { mti: d.mti, ...(tpdu && { tpdu }), ...(header && { header }), fields }
 }
 
 function errorText(e: unknown): string {

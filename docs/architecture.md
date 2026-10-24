@@ -57,10 +57,12 @@
 │  │  ├─ src/
 │  │  │  ├─ lib.rs               # 对外 API：decode / encode / presets
 │  │  │  ├─ spec.rs              # 规范模型（serde）
-│  │  │  ├─ frame.rs             # 长度头 / TPDU / 报文头 / MTI / 位图
+│  │  │  ├─ decode.rs            # 解析：长度头 / TPDU / 报文头 / MTI / 位图 / 各域
+│  │  │  ├─ encode.rs            # 组包：编码各域、生成位图、拼接头部
 │  │  │  ├─ field.rs             # 单个数据域的读写（定长 / LL / LLL）
-│  │  │  ├─ encoding.rs          # BCD / ASCII / 二进制 / z 型磁道 / 补位
+│  │  │  ├─ encoding.rs          # BCD / ASCII / 长度前缀 / 补位
 │  │  │  ├─ tlv.rs               # 55 域等 TLV 解析
+│  │  │  ├─ hex.rs               # 十六进制文本与字节互转
 │  │  │  ├─ message.rs           # 解析结果模型（含偏移，供 UI 联动）
 │  │  │  └─ error.rs             # 带偏移和域号的错误
 │  │  ├─ presets/cup_pos.json    # 内置银联 POS 规范（include_str! 编译进库）
@@ -347,7 +349,7 @@ SpecDialog 编辑 → specStore.draft 改变（dirty = true）
 | 层 | 工具 | 覆盖内容 |
 |---|---|---|
 | Rust 单元 | `cargo test` | 各编码方式、补位、定长 / LL / LLL、位图、TLV、错误偏移 |
-| 往返性质测试 | `proptest` | 随机生成合法报文：encode → decode → encode 结果一致 |
+| 随机往返测试 | 固定种子的伪随机生成 | 按规范随机生成 500 条合法报文：encode → decode 必须还原；随机字节输入绝不 panic |
 | 黄金样例 | `src/samples/*.json` + 对应 HEX | Rust 和前端**共用同一批样例**，保证两端结果一致；原型里的 11 个示例直接作为第一批 |
 | 前端单元 | Vitest | stores、explain 文案、平台适配层（mock） |
 | 端到端 | Playwright（Web 构建） | 载入示例 → 解析 → 选中联动 → 修改规范 → 组包 |

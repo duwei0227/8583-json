@@ -10,7 +10,7 @@ ISO 8583 报文与 JSON 双向转换工具。同一套代码同时交付 **Web �
 | 里程碑 | 状态 |
 |---|---|
 | 项目骨架：Cargo workspace、WASM 构建、Vue + PrimeVue + Tailwind、Tauri 壳 | ✅ |
-| M1 编解码核心（`decode` / `encode` 与黄金样例） | 进行中，目前返回「尚未实现」 |
+| M1 编解码核心：`decode` / `encode`，11 个黄金样例与 500 条随机报文往返通过 | ✅ |
 | M2 转换页完整界面 · M3 规范编辑与历史 · M4 桌面菜单与文件 · M5 发布 | 待开始 |
 
 ## 目录

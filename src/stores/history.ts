@@ -18,7 +18,9 @@ export const useHistoryStore = defineStore('history', () => {
   const items = ref<HistoryItem[]>([])
 
   async function persist() {
-    await (await getPlatform()).storage.set(STORAGE_KEY, items.value)
+    // 响应式代理无法被 IndexedDB 结构化克隆，先转成普通对象
+    const plain = items.value.map((item) => ({ ...item }))
+    await (await getPlatform()).storage.set(STORAGE_KEY, plain)
   }
 
   async function load() {

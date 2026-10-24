@@ -36,6 +36,30 @@ pub struct Decoded {
     pub warnings: Vec<Warning>,
 }
 
+impl Decoded {
+    /// 转成 JSON 报文：TPDU、报文头取原始十六进制，数据域取解析值。
+    pub fn to_message(&self) -> MessageJson {
+        let mut message = MessageJson {
+            mti: self.mti.clone(),
+            tpdu: None,
+            header: None,
+            fields: BTreeMap::new(),
+        };
+        for s in &self.segments {
+            match s.id.as_str() {
+                "tpdu" => message.tpdu = Some(s.raw.clone()),
+                "header" => message.header = Some(s.raw.clone()),
+                id => {
+                    if let Ok(n) = id.parse::<u8>() {
+                        message.fields.insert(n, s.value.clone());
+                    }
+                }
+            }
+        }
+        message
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export)]
