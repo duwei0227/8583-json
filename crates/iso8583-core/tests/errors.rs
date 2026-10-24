@@ -172,3 +172,14 @@ fn ascii_frame_variants_round_trip() {
     // 4 字节长度头 + 5 字节 TPDU + 6 字节报文头之后是 ASCII 的 MTI
     assert_eq!(&bytes[15..19], b"0800");
 }
+
+#[test]
+fn display_only_length_and_bitmap_are_ignored_when_packing() {
+    // 前端解析结果里带 length、bitmap 供查看，组包时必须忽略它们（哪怕与实际不符）
+    let with_extras: MessageJson = serde_json::from_str(
+        r#"{"length":"9999","tpdu":"6000030000","header":"603100000000","mti":"0800","bitmap":"FFFF",
+            "fields":{"11":"000124","41":"12345678","42":"123456789012345","60":"00000001003","63":"001"}}"#,
+    )
+    .unwrap();
+    assert_eq!(with_extras, sign_in());
+}

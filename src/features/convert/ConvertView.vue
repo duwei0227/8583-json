@@ -49,7 +49,7 @@ function selectByte(index: number) {
       <section class="flex flex-col overflow-hidden rounded-lg border border-surface-200 bg-white">
         <div class="flex items-center gap-2 border-b border-surface-200 px-3.5 py-2.5">
           <h2 class="m-0 text-sm font-semibold">JSON</h2>
-          <span class="font-mono text-xs text-surface-500">{ mti, tpdu, header, fields }</span>
+          <span class="font-mono text-xs text-surface-500">{ length, tpdu, header, mti, bitmap, fields }</span>
         </div>
         <CodeEditor id="json-in" v-model="message.json" language="json" label="JSON 报文" placeholder='{ "mti": "0200", "fields": { "3": "000000" } }' />
       </section>

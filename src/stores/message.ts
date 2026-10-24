@@ -79,7 +79,7 @@ export const useMessageStore = defineStore('message', () => {
     hex.value = formatHex(hex.value)
     if (!json.value.trim()) return
     try {
-      json.value = JSON.stringify(JSON.parse(json.value), null, 2)
+      json.value = JSON.stringify(orderKeys(JSON.parse(json.value)), null, 2)
     } catch (e) {
       setStatus('warn', `HEX 已格式化；JSON 语法错误，未格式化：${errorText(e)}`)
     }
@@ -106,15 +106,31 @@ export const useMessageStore = defineStore('message', () => {
   }
 })
 
-/** 解析结果 → JSON 报文（与 `MessageJson` 契约一致）。 */
-function toMessage(d: Decoded): MessageJson {
+/**
+ * JSON 报文的键顺序，与报文中的字节顺序一致。
+ * `length`、`bitmap` 只用于展示，组包时由规范和 fields 重新生成，传入的值会被忽略。
+ */
+const KEY_ORDER = ['length', 'tpdu', 'header', 'mti', 'bitmap', 'fields']
+
+/** 解析结果 → JSON 报文（`MessageJson` 契约外加只读的 length、bitmap）。 */
+function toMessage(d: Decoded): MessageJson & { length?: string; bitmap?: string } {
+  const value = (id: string) => d.segments.find((s) => s.id === id)?.value
   const raw = (id: string) => d.segments.find((s) => s.id === id)?.raw
+  const length = value('len')
   const tpdu = raw('tpdu')
   const header = raw('header')
+  const bitmap = value('bitmap')
   const fields: MessageJson['fields'] = {}
   for (const s of d.segments) if (/^\d+$/.test(s.id)) fields[Number(s.id)] = s.value
-  // 键顺序与契约一致：mti、tpdu、header、fields
-  return { mti: d.mti, ...(tpdu && { tpdu }), ...(header && { header }), fields }
+  return { length, tpdu, header, mti: d.mti, bitmap, fields }
+}
+
+/** 按 KEY_ORDER 重排顶层键，未知键排在最后；值为 undefined 的键会被 JSON.stringify 省略。 */
+export function orderKeys<T>(value: T): T {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return value
+  const rank = (k: string) => (KEY_ORDER.includes(k) ? KEY_ORDER.indexOf(k) : KEY_ORDER.length)
+  const keys = Object.keys(value).sort((a, b) => rank(a) - rank(b))
+  return Object.fromEntries(keys.map((k) => [k, (value as Record<string, unknown>)[k]])) as T
 }
 
 function errorText(e: unknown): string {
