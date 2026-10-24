@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { transactionName } from '../../explain/meanings'
 import { describeSegments } from '../../explain/segments'
 import { useMessageStore } from '../../stores/message'
@@ -15,6 +15,18 @@ const summary = computed(() => {
   if (!d) return ''
   return `MTI ${d.mti} · ${transactionName(d)} · ${rows.value.filter((r) => r.kind === 'field').length} 个数据域`
 })
+
+// 从报文结构点击时，把对应行平滑滚动到视野中间
+const tbody = ref<HTMLTableSectionElement>()
+watch(
+  () => message.revealRequest,
+  async (req) => {
+    if (!req) return
+    await nextTick()
+    const row = tbody.value?.querySelector<HTMLElement>(`tr[data-segment-id="${CSS.escape(req.id)}"]`)
+    row?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  },
+)
 
 const truncate = (text: string, max: number) => (text.length > max ? text.slice(0, max) + '…' : text)
 </script>
@@ -38,10 +50,11 @@ const truncate = (text: string, max: number) => (text.length > max ? text.slice(
             <th scope="col" class="px-3.5 py-2 font-medium">含义</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody ref="tbody">
           <tr
             v-for="row in rows"
             :key="row.id"
+            :data-segment-id="row.id"
             class="cursor-pointer border-t border-surface-100"
             :class="row.id === message.selectedId ? 'bg-blue-100' : row.id === message.hoverId ? 'bg-surface-50' : 'hover:bg-surface-50'"
             @click="message.select(row.id)"

@@ -16,6 +16,8 @@ export const useMessageStore = defineStore('message', () => {
   const selectedId = ref<string | null>(null)
   /** 鼠标悬停的段，只用于各视图的轻量高亮。 */
   const hoverId = ref<string | null>(null)
+  /** 请求逐段解析表把某段滚动到视野内；只有从报文结构选中时才发出，计数保证重复点击同一段也能触发。 */
+  const revealRequest = ref<{ id: string; seq: number } | null>(null)
   const status = ref<{ kind: StatusKind; text: string }>({ kind: 'info', text: '就绪' })
 
   const spec = useSpecStore()
@@ -81,10 +83,15 @@ export const useMessageStore = defineStore('message', () => {
   }
 
   return {
-    hex, json, decoded, selectedId, hoverId, status,
+    hex, json, decoded, selectedId, hoverId, revealRequest, status,
     setStatus, parse, pack, loadSample, clear,
     formatHex: () => (hex.value = formatHex(hex.value)),
     select: (id: string | null) => (selectedId.value = id),
+    /** 选中并让逐段解析表滚动到这一行 */
+    selectAndReveal: (id: string) => {
+      selectedId.value = id
+      revealRequest.value = { id, seq: (revealRequest.value?.seq ?? 0) + 1 }
+    },
     hover: (id: string | null) => (hoverId.value = id),
   }
 })

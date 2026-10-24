@@ -89,11 +89,21 @@ function charRange(h: { offset: number; len: number } | null | undefined) {
 function applyHighlight(scroll: boolean) {
   if (!view || props.language !== 'hex') return
   const range = charRange(props.highlight)
-  view.dispatch({
-    effects: [
-      setHighlight.of(range),
-      ...(scroll && range ? [EditorView.scrollIntoView(range.from, { y: 'nearest' })] : []),
-    ],
+  view.dispatch({ effects: setHighlight.of(range) })
+  if (scroll && range) scrollInside(range.from)
+}
+
+/**
+ * 只滚动编辑器自己的滚动区，让高亮行可见。
+ * 不用 EditorView.scrollIntoView：它会连带滚动外层页面，点击表格或位图时页面会被拽回编辑器附近。
+ */
+function scrollInside(pos: number) {
+  const v = view!
+  v.requestMeasure({
+    read: () => ({ block: v.lineBlockAt(pos), top: v.scrollDOM.scrollTop, height: v.scrollDOM.clientHeight }),
+    write: ({ block, top, height }) => {
+      if (block.top < top || block.bottom > top + height) v.scrollDOM.scrollTop = Math.max(0, block.top - height / 3)
+    },
   })
 }
 
