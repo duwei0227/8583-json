@@ -59,6 +59,8 @@ const commands = createCommands({
   copyHex: () => copyText('HEX', message.hex),
   copyJson: () => copyText('JSON', message.json),
   toggleLayout: () => (ui.layout = ui.layout === 'row' ? 'col' : 'row'),
+  toggleEditors: () => (ui.editorsOpen = !ui.editorsOpen),
+  toggleAnalysis: () => (ui.analysisOpen = !ui.analysisOpen),
   toggleHistory: () => (ui.historyOpen = !ui.historyOpen),
   editSpec: () => (ui.specOpen = true),
   async newSpec() {

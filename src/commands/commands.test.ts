@@ -14,6 +14,8 @@ const actions: CommandActions = {
   copyHex: asyncNoop,
   copyJson: asyncNoop,
   toggleLayout: noop,
+  toggleEditors: noop,
+  toggleAnalysis: noop,
   toggleHistory: noop,
   editSpec: noop,
   newSpec: noop,

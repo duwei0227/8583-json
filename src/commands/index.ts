@@ -38,6 +38,8 @@ export interface CommandActions {
   copyHex(): Promise<void>
   copyJson(): Promise<void>
   toggleLayout(): void
+  toggleEditors(): void
+  toggleAnalysis(): void
   toggleHistory(): void
   editSpec(): void
   newSpec(): void
@@ -64,6 +66,8 @@ export function createCommands(a: CommandActions): Command[] {
     { id: 'message.copyJson', label: '复制 JSON', icon: 'pi pi-copy', group: 'edit', run: a.copyJson },
 
     { id: 'view.layout', label: '切换编辑器排列', icon: 'pi pi-table', group: 'view', run: a.toggleLayout },
+    { id: 'view.editors', label: '折叠 / 展开报文区', icon: 'pi pi-window-minimize', group: 'view', run: a.toggleEditors },
+    { id: 'view.analysis', label: '折叠 / 展开结构与解析区', icon: 'pi pi-window-minimize', group: 'view', run: a.toggleAnalysis },
     { id: 'view.history', label: '历史记录', icon: 'pi pi-history', group: 'view', shortcut: 'CmdOrCtrl+H', run: a.toggleHistory },
 
     { id: 'spec.edit', label: '编辑当前规范…', icon: 'pi pi-sliders-h', group: 'spec', shortcut: 'CmdOrCtrl+,', run: a.editSpec },
