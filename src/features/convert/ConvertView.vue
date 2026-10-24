@@ -69,7 +69,7 @@ function selectByte(index: number) {
       </div>
     </template>
     <section v-else class="rounded-lg border border-dashed border-surface-300 bg-white px-4 py-12 text-center text-sm text-surface-500">
-      粘贴 8583 报文后点「解析」，或编辑 JSON 后点「组包」。也可以从工具栏选一个示例报文。
+      粘贴 8583 报文后点「解析」，或编辑 JSON 后点「组包」。也可以点工具栏的「载入示例」。
     </section>
   </div>
 </template>

@@ -1,5 +1,6 @@
 import { listen } from '@tauri-apps/api/event'
-import { Menu, MenuItem, PredefinedMenuItem, Submenu } from '@tauri-apps/api/menu'
+import { Image } from '@tauri-apps/api/image'
+import { IconMenuItem, Menu, MenuItem, PredefinedMenuItem, Submenu } from '@tauri-apps/api/menu'
 import { getCurrentWebview } from '@tauri-apps/api/webview'
 import { getCurrentWindow } from '@tauri-apps/api/window'
 import { writeText } from '@tauri-apps/plugin-clipboard-manager'
@@ -70,13 +71,14 @@ function createStore(file: string): KeyValueStore {
 async function installMenu(commands: Command[]): Promise<void> {
   const submenus = await Promise.all(
     COMMAND_GROUPS.map(async (group) => {
-      const items: (MenuItem | PredefinedMenuItem)[] = await Promise.all(
+      const items: (MenuItem | IconMenuItem | PredefinedMenuItem)[] = await Promise.all(
         commands
           .filter((c) => c.group === group.id)
-          .map((c) =>
-            MenuItem.new({
+          .map(async (c) =>
+            IconMenuItem.new({
               id: c.id,
               text: c.label,
+              icon: await menuIcon(c.icon),
               accelerator: c.shortcut,
               action: () => void c.run(),
             }),
@@ -96,7 +98,7 @@ async function installMenu(commands: Command[]): Promise<void> {
       if (group.id === 'file') {
         items.push(
           await PredefinedMenuItem.new({ item: 'Separator' }),
-          await MenuItem.new({ id: 'app.quit', text: '退出', accelerator: 'CmdOrCtrl+Q', action: () => void getCurrentWindow().close() }),
+          await IconMenuItem.new({ id: 'app.quit', text: '退出', icon: await menuIcon('pi pi-sign-out'), accelerator: 'CmdOrCtrl+Q', action: () => void getCurrentWindow().close() }),
         )
       }
       return Submenu.new({ text: group.label, items })
@@ -104,4 +106,36 @@ async function installMenu(commands: Command[]): Promise<void> {
   )
   const menu = await Menu.new({ items: submenus })
   await menu.setAsAppMenu()
+}
+
+const ICON_SIZE = 32
+const ICON_COLOR = '#52525b'
+
+/**
+ * 把 PrimeIcons 图标画成 RGBA 位图，供原生菜单使用，与工具栏图标保持一致。
+ * 原生菜单只接受位图；字体未就绪或绘制失败时返回 undefined，菜单项照常显示文字。
+ */
+async function menuIcon(icon: string): Promise<Image | undefined> {
+  try {
+    await document.fonts.load(`${ICON_SIZE}px primeicons`)
+    const probe = document.createElement('i')
+    probe.className = icon
+    document.body.append(probe)
+    const glyph = getComputedStyle(probe, '::before').content.replace(/^["']|["']$/g, '')
+    probe.remove()
+    if (!glyph || glyph === 'none') return undefined
+
+    const canvas = document.createElement('canvas')
+    canvas.width = canvas.height = ICON_SIZE
+    const ctx = canvas.getContext('2d')!
+    ctx.font = `${Math.round(ICON_SIZE * 0.8)}px primeicons`
+    ctx.fillStyle = ICON_COLOR
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(glyph, ICON_SIZE / 2, ICON_SIZE / 2)
+    const { data } = ctx.getImageData(0, 0, ICON_SIZE, ICON_SIZE)
+    return await Image.new(new Uint8Array(data.buffer), ICON_SIZE, ICON_SIZE)
+  } catch {
+    return undefined
+  }
 }

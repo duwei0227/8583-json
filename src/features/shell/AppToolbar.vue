@@ -6,7 +6,7 @@ import Toolbar from 'primevue/toolbar'
 import type { MenuItem } from 'primevue/menuitem'
 import { computed, ref } from 'vue'
 import { COMMAND_GROUPS, formatShortcut, type Command } from '../../commands'
-import { samples, type Sample } from '../../samples'
+import { samples } from '../../samples'
 import { useHistoryStore } from '../../stores/history'
 import { useMessageStore } from '../../stores/message'
 import { useSpecStore } from '../../stores/spec'
@@ -27,7 +27,17 @@ async function switchSpec(id: string) {
   if (message.hex.trim()) message.parse()
   else message.setStatus('info', `已切换到规范「${spec.current?.name}」`)
 }
-const sample = ref<Sample | null>(null)
+
+// 示例是一次性动作而不是状态：点一下就载入，按交易类别分组
+const sampleMenu = ref<InstanceType<typeof Menu>>()
+const SAMPLE_GROUPS = ['金融类', '冲正类', '管理类'] as const
+const groupOf = (mti: string) => (/^0[12]/.test(mti) ? '金融类' : mti.startsWith('04') ? '冲正类' : '管理类')
+const sampleItems: MenuItem[] = SAMPLE_GROUPS.map((g) => ({
+  label: g,
+  items: samples
+    .filter((s) => groupOf(s.message.mti) === g)
+    .map((s) => ({ label: s.title, mti: s.message.mti, command: () => message.loadSample(s) })),
+}))
 
 function tooltip(c: Command) {
   return c.shortcut ? `${c.label}（${formatShortcut(c.shortcut, ui.isMac)}）` : c.label
@@ -64,31 +74,37 @@ const moreItems = computed<MenuItem[]>(() =>
           size="small"
           @click="c.run()"
         />
-        <Select
-          v-model="sample"
-          :options="samples"
-          option-label="title"
-          placeholder="示例报文"
-          size="small"
-          class="ml-2 w-40"
-          aria-label="示例报文"
-          @change="sample && message.loadSample(sample)"
-        />
+      </div>
+    </template>
+    <template #end>
+      <div class="flex items-center gap-1.5">
+        <Button severity="secondary" size="small" aria-haspopup="true" @click="sampleMenu?.toggle($event)">
+          <span class="pi pi-file" aria-hidden="true" />
+          <span>载入示例</span>
+          <span class="pi pi-chevron-down text-[10px]" aria-hidden="true" />
+        </Button>
+        <Menu ref="sampleMenu" :model="sampleItems" popup class="w-52">
+          <template #item="{ item, props: p }">
+            <a v-bind="p.action" class="flex items-center gap-3">
+              <span class="flex-1">{{ item.label }}</span>
+              <span class="font-mono text-xs text-surface-500">{{ item.mti }}</span>
+            </a>
+          </template>
+        </Menu>
+        <Button icon="pi pi-history" :label="`历史 ${history.items.length}`" severity="secondary" size="small" title="历史记录" @click="ui.historyOpen = true" />
+        <span class="mx-1.5 h-5 w-px bg-surface-300" aria-hidden="true" />
         <Select
           :model-value="spec.currentId"
           :options="specOptions"
           option-label="name"
           option-value="id"
           size="small"
-          class="ml-1 w-40"
+          class="w-44"
           aria-label="当前规范"
           @update:model-value="switchSpec"
-        />
-      </div>
-    </template>
-    <template #end>
-      <div class="flex items-center gap-1.5">
-        <Button icon="pi pi-history" :label="`历史 ${history.items.length}`" severity="secondary" size="small" title="历史记录" @click="ui.historyOpen = true" />
+        >
+          <template #value="{ value }"><span class="text-surface-500">规范：</span>{{ specOptions.find((o) => o.id === value)?.name }}</template>
+        </Select>
         <Button icon="pi pi-sliders-h" label="域定义" severity="secondary" size="small" title="编辑当前规范" @click="ui.specOpen = true" />
         <template v-if="ui.platformKind === 'web'">
           <Button icon="pi pi-ellipsis-h" severity="secondary" size="small" text aria-label="更多" @click="more?.toggle($event)" />
