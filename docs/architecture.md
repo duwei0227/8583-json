@@ -97,8 +97,8 @@
 │  ├─ features/
 │  │  ├─ shell/                  # AppToolbar · StatusBar · WebMenu（Web 端「更多」菜单）
 │  │  │                          # AboutDialog · ShortcutsDialog · FieldRefDialog
-│  │  ├─ convert/                # ConvertView · HexEditor · JsonEditor · StructureStrip
-│  │  │                          # SegmentTable · BitmapGrid · SegmentDetail
+│  │  ├─ convert/                # ConvertView · StructureStrip
+│  │  │                          # SegmentTable · BitmapGrid · SegmentDetail · CodeEditor
 │  │  ├─ spec/                   # SpecDialog · FrameSettings · FieldTable · FieldEditor
 │  │  └─ history/                # HistoryDrawer
 │  └─ styles/main.css            # @import tailwindcss + tailwindcss-primeui
@@ -243,7 +243,7 @@ export interface Command {
 |---|---|---|
 | 工具栏 | `AppToolbar` | `Toolbar` · `Button` · `Select` |
 | 状态栏 | `StatusBar` | 自绘（Tailwind） |
-| HEX / JSON 编辑器 | `HexEditor` · `JsonEditor` | **CodeMirror 6**（JSON 语法高亮和校验、大文本性能好，比 Monaco 轻） |
+| HEX / JSON 编辑器 | `CodeEditor`（`language` 区分） | **CodeMirror 6**，按需拆包加载：JSON 语法高亮和校验；HEX 非法字符标红、高亮选中段的字节、点击字节选中所在段 |
 | 报文结构色块 | `StructureStrip` | 自绘 |
 | 逐段解析表 | `SegmentTable` | 原生 `<table>` + Tailwind（选中态需要左侧竖条、徽标反白等细节，比定制 `DataTable` 更直接） |
 | 位图 | `BitmapGrid` | 自绘（8 列网格） |
