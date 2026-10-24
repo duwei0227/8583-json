@@ -1,0 +1,80 @@
+name: Release (Windows)
+
+# 推送 v* 标签：构建并发布 GitHub Release
+# 在 Actions 页面手动运行：只构建，产物在本次运行的 Artifacts 里，用于发版前验证
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    name: Windows 安装包 + 绿色版
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # beforeBuildCommand 会先执行 pnpm build:web（含 WASM 构建）
+      - name: 构建 NSIS 安装包
+        run: pnpm tauri build --bundles nsis
+
+      - name: 整理安装包与绿色版
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $out = 'release'
+          $portable = "$out/8583-json_${version}_x64_portable"
+          New-Item -ItemType Directory -Force $portable | Out-Null
+
+          # 安装包
+          Copy-Item target/release/bundle/nsis/*.exe "$out/8583-json_${version}_x64-setup.exe"
+
+          # 绿色版：前端资源已编译进 exe，解压即可运行
+          Copy-Item target/release/iso8583-desktop.exe "$portable/8583-json.exe"
+          @"
+          8583 ⇄ JSON $version（绿色版）
+
+          解压后双击 8583-json.exe 运行，无需安装。
+
+          运行需要 Microsoft Edge WebView2 运行时：Windows 10 / 11 通常已自带；
+          如提示缺少，请从 https://developer.microsoft.com/microsoft-edge/webview2/ 安装。
+
+          说明：程序未做代码签名，首次运行时 Windows 可能提示「已保护你的电脑」，
+          点「更多信息」→「仍要运行」即可。
+          规范和历史记录保存在 %APPDATA%\io.github.duwei0227.iso8583json，删除程序文件夹不会清除这些数据。
+          "@ | Set-Content -Encoding utf8 "$portable/README.txt"
+          Compress-Archive -Path "$portable/*" -DestinationPath "$portable.zip"
+          Remove-Item -Recurse $portable
+
+          Get-ChildItem $out | Format-Table Name, Length
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: 8583-json-windows-x64
+          path: release/*
+          if-no-files-found: error
+
+      - name: 发布 GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+          generate_release_notes: true
