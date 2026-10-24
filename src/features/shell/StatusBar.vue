@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { segmentTag } from '../../explain/segments'
 import { useMessageStore, type StatusKind } from '../../stores/message'
 import { useSpecStore } from '../../stores/spec'
 import { useUiStore } from '../../stores/ui'
@@ -15,6 +16,12 @@ const tone: Record<StatusKind, { label: string; dot: string; text: string }> = {
   info: { label: '提示', dot: 'bg-blue-500', text: 'text-blue-800' },
 }
 const current = computed(() => tone[message.status.kind])
+
+const h4 = (n: number) => '0x' + n.toString(16).toUpperCase().padStart(4, '0')
+const selection = computed(() => {
+  const s = message.decoded?.segments.find((x) => x.id === message.selectedId)
+  return s ? `选中 ${segmentTag(s.id)} · ${h4(s.offset)}–${h4(s.offset + s.len - 1)}` : ''
+})
 </script>
 
 <template>
@@ -24,8 +31,8 @@ const current = computed(() => tone[message.status.kind])
       <span class="font-semibold">{{ current.label }}</span>
       <span class="break-all">{{ message.status.text }}</span>
     </span>
-    <span v-if="message.selectedId" class="ml-auto font-mono">选中 {{ message.selectedId }}</span>
-    <span :class="{ 'ml-auto': !message.selectedId }">{{ spec.current?.name }}</span>
+    <span v-if="selection" class="ml-auto font-mono">{{ selection }}</span>
+    <span :class="{ 'ml-auto': !selection }">{{ spec.current?.name }}</span>
     <span>{{ ui.platformKind === 'desktop' ? '桌面端' : 'Web' }} · v0.1.0</span>
   </footer>
 </template>

@@ -245,9 +245,9 @@ export interface Command {
 | 状态栏 | `StatusBar` | 自绘（Tailwind） |
 | HEX / JSON 编辑器 | `HexEditor` · `JsonEditor` | **CodeMirror 6**（JSON 语法高亮和校验、大文本性能好，比 Monaco 轻） |
 | 报文结构色块 | `StructureStrip` | 自绘 |
-| 逐段解析表 | `SegmentTable` | `DataTable`（`selectionMode="single"`，行选中样式按原型定制） |
+| 逐段解析表 | `SegmentTable` | 原生 `<table>` + Tailwind（选中态需要左侧竖条、徽标反白等细节，比定制 `DataTable` 更直接） |
 | 位图 | `BitmapGrid` | 自绘（8 列网格） |
-| 详情面板 | `SegmentDetail` | `Panel` · `Tag` |
+| 详情面板 | `SegmentDetail` | 自绘（逐位拆解、取值选项、TLV 列表） |
 | 域定义 | `SpecDialog` · `FieldTable` · `FieldEditor` | `Dialog`（全屏） · `DataTable` · `InputText` · `Select` · `InputNumber` |
 | 历史 | `HistoryDrawer` | `Drawer` |
 | 关于、快捷键、字段速查 | `*Dialog` | `Dialog` |

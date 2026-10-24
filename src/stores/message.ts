@@ -14,6 +14,8 @@ export const useMessageStore = defineStore('message', () => {
   const decoded = ref<Decoded | null>(null)
   /** 选中段的唯一来源：结构色块、逐段解析表、位图、详情面板都从它派生。 */
   const selectedId = ref<string | null>(null)
+  /** 鼠标悬停的段，只用于各视图的轻量高亮。 */
+  const hoverId = ref<string | null>(null)
   const status = ref<{ kind: StatusKind; text: string }>({ kind: 'info', text: '就绪' })
 
   const spec = useSpecStore()
@@ -79,10 +81,11 @@ export const useMessageStore = defineStore('message', () => {
   }
 
   return {
-    hex, json, decoded, selectedId, status,
+    hex, json, decoded, selectedId, hoverId, status,
     setStatus, parse, pack, loadSample, clear,
     formatHex: () => (hex.value = formatHex(hex.value)),
     select: (id: string | null) => (selectedId.value = id),
+    hover: (id: string | null) => (hoverId.value = id),
   }
 })
 
