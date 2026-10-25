@@ -1,0 +1,49 @@
+name: Deploy Web (Cloudflare)
+
+# 推送到 master 时构建 Web 版并部署到 Cloudflare Workers，自定义域名见 wrangler.jsonc
+# 需要在仓库 Settings → Secrets and variables → Actions 里配置：
+#   CLOUDFLARE_API_TOKEN   用 API Token 模板「Edit Cloudflare Workers」创建，Zone Resources 选 probiecoder.cn
+#   CLOUDFLARE_ACCOUNT_ID  Cloudflare 控制台首页右侧的 Account ID
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+# 同一时间只跑一次部署，后来的等前面的完成
+concurrency:
+  group: deploy-web
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: 构建并部署
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:web
+      - name: 部署到 Cloudflare Workers
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::缺少仓库 Secret：CLOUDFLARE_API_TOKEN 或 CLOUDFLARE_ACCOUNT_ID"
+            exit 1
+          fi
+          pnpm exec wrangler deploy
