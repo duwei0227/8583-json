@@ -33,7 +33,7 @@ ISO 8583 报文与 JSON 双向转换工具：把十六进制报文解析成可�
 
 ### Web 版
 
-纯静态页面，用浏览器打开即可使用；规范和历史记录保存在浏览器本地。部署方式见下文 [Web 版部署](#web-版部署cloudflare-workers)。
+打开 <https://8583.probiecoder.cn> 即可使用，无需安装；规范和历史记录保存在浏览器本地。
 
 ## 使用
 
@@ -158,10 +158,17 @@ e2e/                  端到端测试（Playwright）
 
 ### Web 版部署（Cloudflare Workers）
 
-Cloudflare 直接连接本仓库，推送到 `master` 后自动构建部署。一次性配置：
+推送到 `master` 后，GitHub Actions 自动构建并部署到 Cloudflare Workers，网址为 <https://8583.probiecoder.cn>（工作流见 `.github/workflows/deploy-web.yml`，也可以在 Actions 页面手动运行「Deploy Web (Cloudflare)」）。
 
-1. 登录 Cloudflare 控制台 → **Workers & Pages** → **Create** → 导入本 GitHub 仓库
-2. 构建设置：**Build command** 填 `bash scripts/cf-build.sh`，**Deploy command** 保持默认的 `npx wrangler deploy`，根目录为仓库根目录，生产分支选 `master`
-3. 保存并部署。完成后网址为 `https://iso8583-json.<你的子域>.workers.dev`，可在设置里绑定自己的域名
+一次性配置：在仓库 **Settings → Secrets and variables → Actions** 里添加两个 Secret：
 
-Cloudflare 的构建镜像不含 Rust，`scripts/cf-build.sh` 会先安装 Rust 与 wasm-pack 再构建，每次部署大约 4 分钟。站点配置在 `wrangler.jsonc`；响应头在 `public/_headers`，其中 CSP 只允许加载本站资源，报文不会被发送到任何其他地址。
+| Secret | 取值 |
+|---|---|
+| `CLOUDFLARE_API_TOKEN` | Cloudflare 控制台 → **My Profile → API Tokens → Create Token**，选模板「Edit Cloudflare Workers」，**Zone Resources** 选 `probiecoder.cn` |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare 控制台首页（或 Workers & Pages 页）右侧的 **Account ID** |
+
+说明：
+
+- 自定义域名在 `wrangler.jsonc` 的 `routes` 里配置，首次部署时 Cloudflare 自动创建 DNS 记录和证书，要求该域名已托管在同一个 Cloudflare 账号；如果该子域名已有其他 DNS 记录，需要先删掉
+- 不要再在 Cloudflare 控制台里把本仓库连接到 Workers 的 Git 集成，否则每次推送会部署两次
+- 站点配置在 `wrangler.jsonc`；响应头在 `public/_headers`，其中 CSP 只允许加载本站资源，报文不会被发送到任何其他地址
