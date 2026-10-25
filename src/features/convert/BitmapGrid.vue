@@ -42,7 +42,7 @@ const note = computed(() => (message.decoded ? bitmapNote(message.decoded, messa
         v-for="cell in cells"
         :key="cell.n"
         type="button"
-        class="h-7 rounded font-mono text-[11px] disabled:cursor-default"
+        class="h-7 rounded font-mono text-[12px] disabled:cursor-default"
         :class="[cell.cls, { 'cursor-pointer': cell.clickable }]"
         :disabled="!cell.clickable"
         :aria-label="`第 ${cell.n} 位 ${cell.on ? '已置位' : '未置位'}`"

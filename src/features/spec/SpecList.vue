@@ -57,7 +57,7 @@ async function exportCurrent() {
       :class="entry.id === spec.currentId ? 'border-primary bg-blue-50 shadow-[inset_3px_0_0_var(--p-primary-color)]' : 'border-surface-200'"
     >
       <button type="button" class="flex min-w-0 flex-1 cursor-pointer flex-col items-start gap-0.5 bg-transparent px-3 py-2 text-left" :aria-pressed="entry.id === spec.currentId" @click="select(entry)">
-        <span class="truncate text-[13px] font-semibold">{{ entry.spec.name }}</span>
+        <span class="truncate text-[14px] font-semibold">{{ entry.spec.name }}</span>
         <span class="text-xs text-surface-500">
           {{ entry.preset ? '内置' : '自定义' }} · {{ Object.keys(entry.spec.fields).length }} 个域{{ entry.id === spec.currentId ? ' · 当前使用' : '' }}
         </span>

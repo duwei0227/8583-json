@@ -51,7 +51,7 @@ const hexLinter = linter((v) => {
 })
 
 const theme = EditorView.theme({
-  '&': { position: 'absolute', inset: '0', fontSize: '13px', backgroundColor: 'var(--p-surface-50)' },
+  '&': { position: 'absolute', inset: '0', fontSize: '14px', backgroundColor: 'var(--p-surface-50)' },
   '&.cm-focused': { outline: 'none' },
   '.cm-scroller': { fontFamily: 'var(--font-mono)', lineHeight: '1.7' },
   '.cm-gutters': { backgroundColor: 'var(--p-surface-50)', borderRight: '1px solid var(--p-surface-200)' },

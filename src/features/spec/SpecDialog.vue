@@ -79,7 +79,7 @@ async function apply() {
     <template #header>
       <div class="flex w-full flex-wrap items-center gap-2.5">
         <h2 class="m-0 text-base font-semibold">域定义配置</h2>
-        <span class="text-[13px] text-surface-500">{{ spec.draft?.name }} · {{ Object.keys(spec.draft?.fields ?? {}).length }} 个域</span>
+        <span class="text-[14px] text-surface-500">{{ spec.draft?.name }} · {{ Object.keys(spec.draft?.fields ?? {}).length }} 个域</span>
         <span class="text-xs font-medium" :class="status.cls">{{ status.text }}</span>
         <div class="ml-auto flex flex-wrap gap-2">
           <Button v-if="spec.currentEntry?.preset" label="恢复默认" icon="pi pi-refresh" severity="secondary" text size="small" @click="resetToPreset" />
@@ -91,7 +91,7 @@ async function apply() {
     </template>
 
     <Message v-if="spec.draftProblems.length || applyProblems.length" severity="error" class="mb-4">
-      <ul class="m-0 pl-4 text-[13px]">
+      <ul class="m-0 pl-4 text-[14px]">
         <li v-for="p in spec.draftProblems.length ? spec.draftProblems : applyProblems" :key="p">{{ p }}</li>
       </ul>
     </Message>
