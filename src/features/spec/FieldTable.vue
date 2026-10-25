@@ -50,7 +50,7 @@ function add() {
       <p v-if="addError" class="m-0 w-full text-right text-xs text-red-700">{{ addError }}</p>
     </div>
     <div class="max-h-[calc(100vh-14rem)] overflow-auto">
-      <table class="w-full min-w-[560px] border-collapse text-[13px]">
+      <table class="w-full min-w-[560px] border-collapse text-[14px]">
         <thead class="sticky top-0 z-10">
           <tr class="bg-surface-50 text-left text-xs whitespace-nowrap text-surface-500">
             <th scope="col" class="px-3.5 py-2 font-medium">域</th>

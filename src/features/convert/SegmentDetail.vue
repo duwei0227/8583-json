@@ -26,7 +26,7 @@ const accent = computed(() => KIND_STYLES[segmentKind(message.selectedId ?? '')]
       <span class="text-surface-500">原始字节 </span>{{ detail.raw }}
     </div>
 
-    <dl class="m-0 flex flex-col gap-1.5 text-[13px]">
+    <dl class="m-0 flex flex-col gap-1.5 text-[14px]">
       <div v-for="item in detail.items" :key="item.label" class="grid grid-cols-[76px_minmax(0,1fr)] gap-2.5">
         <dt class="text-surface-500">{{ item.label }}</dt>
         <dd class="m-0 break-all" :class="{ 'font-mono text-xs leading-5': item.mono }">{{ item.value }}</dd>
@@ -52,7 +52,7 @@ const accent = computed(() => KIND_STYLES[segmentKind(message.selectedId ?? '')]
             <span
               v-for="option in part.options"
               :key="option.code"
-              class="rounded border px-1.5 text-[11px] whitespace-nowrap"
+              class="rounded border px-1.5 text-[12px] whitespace-nowrap"
               :class="option.current ? 'border-violet-800 bg-violet-800 text-white' : 'border-surface-200 text-surface-500'"
               :aria-current="option.current || undefined"
             >

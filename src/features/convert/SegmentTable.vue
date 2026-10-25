@@ -38,7 +38,7 @@ const truncate = (text: string, max: number) => (text.length > max ? text.slice(
       <span class="text-xs text-surface-500">{{ summary }} · 点击任一行查看拆解说明</span>
     </div>
     <div class="overflow-x-auto">
-      <table class="w-full min-w-[760px] border-collapse text-[13px]">
+      <table class="w-full min-w-[760px] border-collapse text-[14px]">
         <thead>
           <tr class="bg-surface-50 text-left text-xs whitespace-nowrap text-surface-500">
             <th scope="col" class="px-3.5 py-2 font-medium">段</th>

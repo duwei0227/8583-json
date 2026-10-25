@@ -46,7 +46,7 @@ const selected = computed(() => message.decoded?.segments.find((s) => s.id === m
         @mouseenter="message.hover(chip.id)"
         @mouseleave="message.hover(null)"
       >
-        <span class="text-[11px] font-semibold">{{ chip.tag }}</span>
+        <span class="text-[12px] font-semibold">{{ chip.tag }}</span>
         <span class="font-mono text-xs break-all">{{ chip.hex }}</span>
       </button>
     </div>

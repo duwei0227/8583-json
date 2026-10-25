@@ -42,10 +42,10 @@ async function submit() {
 <template>
   <Dialog v-model:visible="ui.importOpen" header="导入规范" modal class="w-[40rem] max-w-[calc(100vw-2rem)]">
     <div class="flex flex-col gap-3">
-      <p class="m-0 text-[13px] text-surface-600">粘贴规范 JSON，或选择导出的 .json 文件。导入前会先校验，通过后作为新规范加入列表并切换过去。</p>
+      <p class="m-0 text-[14px] text-surface-600">粘贴规范 JSON，或选择导出的 .json 文件。导入前会先校验，通过后作为新规范加入列表并切换过去。</p>
       <Textarea v-model="text" rows="12" spellcheck="false" aria-label="规范 JSON" placeholder='{ "schema": 1, "name": "…", "frame": { … }, "fields": { … } }' class="font-mono text-xs" />
       <Message v-if="problems.length" severity="error">
-        <ul class="m-0 pl-4 text-[13px]">
+        <ul class="m-0 pl-4 text-[14px]">
           <li v-for="p in problems" :key="p">{{ p }}</li>
         </ul>
       </Message>
