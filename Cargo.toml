@@ -5,7 +5,7 @@ members = ["crates/iso8583-core", "crates/iso8583-wasm", "src-tauri"]
 default-members = ["crates/iso8583-core", "crates/iso8583-wasm"]
 
 [workspace.package]
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 [profile.release]

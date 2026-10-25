@@ -1,7 +1,7 @@
 {
   "name": "iso8583-json",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "ISO 8583 报文与 JSON 双向转换工具（Web + Tauri 桌面端）",
   "packageManager": "pnpm@10.28.0",
